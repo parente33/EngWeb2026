@@ -16,7 +16,7 @@ ID: A107363
 
 Nome: Daniel Gonçalves Parente
 
-Foto: [imagem](/home/parente33/EngWeb2026/TP1)
+Foto: ![imagem](/home/parente33/EngWeb2026/TP1)
 
 # Resumo
 

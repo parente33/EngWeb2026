@@ -3,15 +3,20 @@
 # MetaInformação
 
 Título: Definir a estrutura de um website de exploração de um dataset
+
 Data: 04/02/2026
+
 Autor: Daniel Parente
+
 UC: Engenharia Web
 
 # Autor
 
 ID: A107363
+
 Nome: Daniel Gonçalves Parente
-Foto: [Photo.png]
+
+Foto: [imagem](https://github.com/parente33/tree/main/TP1/Photo.png)
 
 # Resumo
 

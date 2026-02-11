@@ -42,17 +42,17 @@ Criar uma ou várias scripts em Python para gerar o website a partir do dataset.
 
 # Lista de Resultados
 
-[dataset_reparacoes.json](https://github.com/parente33/tree/main/TP1/dataset_reparacoes.json): dataset fornecido.
+[dataset_reparacoes.json](dataset_reparacoes.json): dataset fornecido.
 
-[json2html.py](https://github.com/parente33/tree/main/TP1/json2html.py): script python responsável por converter o dataset num website.
+[json2html.py](json2html.py): script python responsável por converter o dataset num website.
 
-[index.html](https://github.com/parente33/tree/main/TP1/index.html): página inicial do website, contém links para as restantes páginas.
+[index.html](output/index.html): página inicial do website, contém links para as restantes páginas.
 
-[reparacoes/index.html](https://github.com/parente33/tree/main/TP1/reparacoes/index.html): página com a lista das reparações.
+[reparacoes/index.html](output/reparacoes/index.html): página com a lista das reparações.
 
-[intervencoes/index.html](https://github.com/parente33/tree/main/TP1/intervencoes/index.html): página com a lista dos tipos de intervenção.
+[intervencoes/index.html](output/intervencoes/index.html): página com a lista dos tipos de intervenção.
 
-[carros/index.html](https://github.com/parente33/tree/main/TP1/carros/index.html): página com a lista das marcas e dos modelos dos carros.
+[carros/index.html](output/carros/index.html): página com a lista das marcas e dos modelos dos carros.
 
 Nota: Por serem demasiadas, as páginas individuais não foram adicionadas ao repositório.
 

@@ -24,9 +24,9 @@ Criar um servidor aplicacional para responder aos seguintes serviços:
 
 # Lista de Resultados
 
-[dataset_reparacoes.json](https://github.com/parente33/tree/main/TP2/dataset_reparacoes.json): dataset fornecido.
+[dataset_reparacoes.json](dataset_reparacoes.json): dataset fornecido.
 
-[server.js](https://github.com/parente33/tree/main/TP2/server.js): servidor aplicacional desenvolvido.
+[server.js](server.js): servidor aplicacional desenvolvido.
 
 # Para correr
 

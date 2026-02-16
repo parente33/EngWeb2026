@@ -10,14 +10,6 @@ Autor: Daniel Parente
 
 UC: Engenharia Web
 
-# Autor
-
-ID: A107363
-
-Nome: Daniel Gonçalves Parente
-
-Foto: ![imagem](Photo.png)
-
 # Resumo
 
 Análise do dataset dataset_reparacoes.json sobre as intervenções realizadas numa oficina automóvel;

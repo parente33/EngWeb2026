@@ -10,14 +10,6 @@ Autor: Daniel Parente
 
 UC: Engenharia Web
 
-# Autor
-
-ID: A107363
-
-Nome: Daniel Gonçalves Parente
-
-Foto: ![imagem](Photo.png)
-
 # Resumo
 
 Criar um json-server com o dataset das reparações;

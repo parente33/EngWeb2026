@@ -16,11 +16,11 @@ Criar um json-server com o dataset das reparações;
 
 Criar um servidor aplicacional para responder aos seguintes serviços:
 
-. /reparacoes - Tabela HTML com os dados das reparações;
+- ./reparacoes - Tabela HTML com os dados das reparações;
 
-. /intervencoes - Tabela HTML com os diferentes tipos de intervenção, sem repetições e com o número de vezes que foram feitas;
+- ./intervencoes - Tabela HTML com os diferentes tipos de intervenção, sem repetições e com o número de vezes que foram feitas;
 
-. /viaturas - Tabela HTML com os dados dos tipos de viatura intervencionados e o número de vezes que cada modelo foi reparado.
+- ./viaturas - Tabela HTML com os dados dos tipos de viatura intervencionados e o número de vezes que cada modelo foi reparado.
 
 # Lista de Resultados
 

@@ -1,4 +1,4 @@
-## TPC1 - Estrutura de um website de exploração de um dataset de reparações automóveis
+## TPC1
 
 # MetaInformação
 

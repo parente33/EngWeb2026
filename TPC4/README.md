@@ -44,7 +44,7 @@ Como trabalho de casa deverás suportar as seguintes rotas:
 
 # Lista de Resultados
 
-[views](/views): Diretório com os ficheiros .pug para gerar as páginas HTML;
+[views](./views): Diretório com os ficheiros .pug para gerar as páginas HTML;
 
 [emd.json](emd.json): Dataset não trabalhado, e não apropriado para usar em servidores;
 
@@ -67,8 +67,6 @@ Precisa de ter instalado:
 ```console
 npm install -g json-server@0.17.4
 ```
-
-,
 
 - axios:
 ```console

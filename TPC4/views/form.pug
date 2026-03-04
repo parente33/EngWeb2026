@@ -1,0 +1,48 @@
+extends layout
+
+block content
+    .w3-card-4
+        header.w3-container.w3-purple
+            h2= exame ? "Edição de um Exame" : "Registo de novo Exame"
+
+        form.w3-container.w3-padding-16(method="POST" action=exame ? `/emd/editar/${exame.id}` : "/emd")
+            fieldset
+                legend Informação Pessoal
+                if exame
+                    input(type="hidden" name="id" value=exame.id)
+
+                label DataEMD
+                input.w3-input.w3-round(type="text" name="dataEMD" value=exame ? exame.dataEMD : "")
+
+                label Primeiro Nome
+                input.w3-input.w3-round(type="text" name="nome.primeiro" value=emd ? emd.nome.primeiro : "" required)
+
+                label Último Nome
+                input.w3-input.w3-round(type="text" name="nome.último" value=emd ? emd.nome.último : "" required)
+
+                label Idade
+                input.w3-input.w3-round(type="text" name="idade" value=exame ? exame.idade : "")
+
+                label Género
+                input.w3-input.w3-round(type="text" name="género" value=exame ? exame.género : "")
+
+                label Morada
+                input.w3-input.w3-round(type="text" name="morada" value=exame ? exame.morada : "")
+
+                label Modalidade
+                input.w3-input.w3-round(type="text" name="modalidade" value=exame ? exame.modalidade : "")
+
+                label Clube
+                input.w3-input.w3-round(type="text" name="clube" value=exame ? exame.clube : "")
+
+                label Email
+                input.w3-input.w3-round(type="text" name="email" value=exame ? exame.email : "")
+
+                label Federado
+                input.w3-input.w3-round(type="text" name="federado" value=exame ? exame.federado : "")
+
+                label Resultado (Apto)
+                input.w3-input.w3-round(type="text" name="resultado" value=exame ? exame.resultado : "")
+
+                button.w3-btn.w3-purple.w3-margin-top(type="submit")= exame ? "Atualizar" : "Submeter"
+                a.w3-btn.w3-grey.w3-margin-top.w3-margin-left(href="/") Cancelar

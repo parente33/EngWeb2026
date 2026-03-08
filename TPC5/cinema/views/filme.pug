@@ -1,0 +1,33 @@
+extends layout
+
+block content
+    .w3-container.w3-teal
+        h1 #{filme.title}
+
+    .w3-container.w3-margin-top
+        .w3-card.w3-padding.w3-light-grey
+        p
+            b ID:
+            |  #{filme.id}
+        p
+            b Título:
+            |  #{filme.title}
+        p
+            b Ano:
+            |  #{filme.year}
+
+    .w3-container.w3-margin-top
+    .w3-card.w3-padding
+        h3 Elenco
+        ul.w3-ul
+            each a in atores
+                li
+                    a(href="/atores/" + a.id) #{a.actor}
+
+    .w3-container.w3-margin-top
+    .w3-card.w3-padding
+        h3 Géneros
+        ul.w3-ul
+            each g in generos
+                li
+                    a(href="/generos/" + g.id) #{g.genre}

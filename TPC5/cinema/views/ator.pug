@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  .w3-container.w3-teal
+    h1 #{ator.actor}
+
+  .w3-container.w3-margin-top
+    .w3-card.w3-padding.w3-light-grey
+      p
+        b ID:
+        |  #{ator.id}
+      p
+        b Nome:
+        |  #{ator.actor}
+      p
+        b Nº de Filmes:
+        |  #{ator.movies.length}
+
+  .w3-container.w3-margin-top
+    .w3-card.w3-padding
+      h3 Filmes
+      ul.w3-ul
+        each f in filmes
+          li
+            a(href="/filmes/" + f.id) #{f.title}

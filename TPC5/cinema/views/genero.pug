@@ -1,0 +1,25 @@
+extends layout
+
+block content
+    .w3-container.w3-teal
+        h1 #{genero.genre}
+
+    .w3-container.w3-margin-top
+        .w3-card.w3-padding.w3-light-grey
+            p
+                b ID:
+                |  #{genero.id}
+            p
+                b Género:
+                |  #{genero.genre}
+            p
+                b Nº de Filmes:
+                |  #{genero.movies.length}
+
+    .w3-container.w3-margin-top
+        .w3-card.w3-padding
+            h3 Filmes
+            ul.w3-ul
+                each f in filmes
+                    li
+                        a(href="/filmes/" + f.id) #{f.title}

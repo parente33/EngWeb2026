@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  .w3-container.w3-teal
+    h1 Lista de Filmes
+
+  .w3-container.w3-margin-top
+    table.w3-table-all.w3-hoverable
+      thead
+        tr.w3-light-grey
+          th ID
+          th Título
+          th Ano
+          th #Géneros
+          th #Atores
+      tbody
+        each f in filmes
+          tr
+            td: a(href="/filmes/" + f.id) #{f.id}
+            td: a(href="/filmes/" + f.id) #{f.title}
+            td: a(href="/filmes/" + f.id) #{f.year}
+            td: a(href="/filmes/" + f.id) #{f.genres.length}
+            td: a(href="/filmes/" + f.id) #{f.cast.length}

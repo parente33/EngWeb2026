@@ -44,23 +44,23 @@ Cria uma orquestração de sereviços para implementar uma App sobre cinema:
 
 [cinema.json](./appCinema/api_dados/cinema.json): dataset com a informação sobre os filmes, atores e géneros;
 
-[collections](./appCinema/api_dados/collections/) diretoria onde estão os ficheiros .json para usar no mongoDB (filmes.json, atores.json e generos.json);
+[collections](./appCinema/api_dados/collections/): diretoria onde estão os ficheiros .json para usar no mongoDB (filmes.json, atores.json e generos.json);
 
-[cinema_handler.py](./appCinema/api_dados/cinema_handler.py) script que converte o dataset nos três apropriados para usar no mongoDB;
+[cinema_handler.py](./appCinema/api_dados/cinema_handler.py): script que converte o dataset nos três apropriados para usar no mongoDB;
 
-[api_server.js](./appCinema/api_dados/api_server.js) servidor da API de dados (minimalista);
+[api_server.js](./appCinema/api_dados/api_server.js): servidor da API de dados (minimalista);
 
-[Dockerfile](./appCinema/api_dados/Dockerfile) Dockerfile para o container da API de dados;
+[Dockerfile](./appCinema/api_dados/Dockerfile): Dockerfile para o container da API de dados;
 
-[Dockerfile.mongo](./appCinema/api_dados/Dockerfile.mongo) Dockerfile para o container do mongoDB;
+[Dockerfile.mongo](./appCinema/api_dados/Dockerfile.mongo): Dockerfile para o container do mongoDB;
 
-[views](./appCinema/interface/views/) Diretório com os ficheiros .pug para gerar as páginas HTML;;
+[views](./appCinema/interface/views/): Diretório com os ficheiros .pug para gerar as páginas HTML;;
 
-[app_interface.js](./appCinema/interface/app_interface.js) servidor da interface;
+[app_interface.js](./appCinema/interface/app_interface.js): servidor da interface;
 
-[Dockerfile.interface](./appCinema/interface/Dockerfile.interface) Dockerfile para o container da interface;
+[Dockerfile.interface](./appCinema/interface/Dockerfile.interface): Dockerfile para o container da interface;
 
-[docker-compose.yml](./appCinema/docker-compose.yml) ficheiro de configuração do docker-compose para orquestrar os containers;
+[docker-compose.yml](./appCinema/docker-compose.yml): ficheiro de configuração do docker-compose para orquestrar os containers;
 
 # Para correr
 

@@ -1,0 +1,55 @@
+extends layout.pug
+
+block content
+  .w3-container
+    .w3-bar.w3-teal
+      a.w3-bar-item.w3-button(href='/') ← Página Principal
+      h2.w3-bar-item Reparação ##{repair._id}
+
+    .w3-panel.w3-border
+      h3 Dados do Cliente
+      .w3-row
+        .w3-col.m6
+          p
+            strong Nome:
+            |  #{repair.nome}
+          p
+            strong NIF:
+            |  #{repair.nif}
+        .w3-col.m6
+          p
+            strong Data da Reparação:
+            |  #{repair.data}
+
+    .w3-panel.w3-border
+      h3 Dados da Viatura
+      .w3-row
+        .w3-col.m4
+          p
+            strong Marca:
+            |  
+            a(href=`/${repair.viatura.marca}`)= repair.viatura.marca
+        .w3-col.m4
+          p
+            strong Modelo:
+            |  #{repair.viatura.modelo}
+        .w3-col.m4
+          p
+            strong Matrícula:
+            |  #{repair.viatura.matricula}
+
+    .w3-panel.w3-border
+      h3 Intervenções (#{repair.nr_intervencoes})
+      table.w3-table-all
+        tr.w3-teal
+          th Código
+          th Nome
+          th Descrição
+        each intervencao in repair.intervencoes
+          tr
+            td= intervencao.codigo
+            td= intervencao.nome
+            td= intervencao.descricao
+
+    .w3-panel
+      a.w3-button.w3-teal(href='/') Voltar à Página Principal

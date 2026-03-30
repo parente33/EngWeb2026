@@ -1,0 +1,33 @@
+services:
+
+  mongo:
+    build:
+      context: ./ex1
+      dockerfile: Dockerfile.mongo
+    container_name: mongoEW
+    ports:
+      - "27017:27017"
+
+  api:
+    build:
+      context: ./ex1
+      dockerfile: Dockerfile
+    container_name: api_dados
+    ports:
+      - "16025:16025"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/autoRepair
+    depends_on:
+      - mongo
+
+  interface:
+    build:
+      context: ./ex2
+      dockerfile: Dockerfile.interface
+    container_name: interface
+    ports:
+      - "16026:16026"
+    environment:
+      - API_URL=http://api:16025
+    depends_on:
+      - api

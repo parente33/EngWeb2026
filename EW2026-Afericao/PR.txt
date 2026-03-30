@@ -1,0 +1,56 @@
+Os dados foram persistidos numa base de dados MongoDB com os seguintes parâmetros:
+- Database: autoRepair
+- Collection: repairs
+- Formato: JSON
+
+### Preparação do dataset
+
+O dataset original (dataset_reparacoes.json) encontrava-se encapsulado numa chave "reparacoes".
+Foi criado o script json_handler.py para extrair o array de reparações e gerar o ficheiro repairs.json,
+pronto a importar no MongoDB.
+
+### Setup com Docker Compose
+
+A importação da base de dados e o arranque de todos os serviços é feito automaticamente via Docker Compose,
+sem necessidade de comandos manuais. Basta correr:
+
+    docker compose up --build
+
+O Dockerfile.mongo (serviço mongo) copia o repairs.json e o script mongo-init/import.sh para a pasta
+/docker-entrypoint-initdb.d/, que o MongoDB executa automaticamente na primeira inicialização,
+importando os dados para a coleção repairs da base de dados autoRepair.
+
+### API de Dados
+
+Endpoints disponíveis:
+- GET  /repairs                  — lista todas as reparações (suporta ?ano=YYYY e ?marca=VRUM)
+- GET  /repairs/:id              — registo por id
+- GET  /repairs/matriculas       — lista de matrículas distintas, ordenadas alfabeticamente
+- GET  /repairs/interv           — lista de intervenções distintas (código, nome, descrição), ordenadas por código
+- POST /repairs                  — inserir novo registo
+- DELETE /repairs/:id            — eliminar registo por id
+
+### Queries MongoDB
+
+As queries desenvolvidas estão na pasta ex1, no ficheiro queries.txt
+
+---
+
+## Exercício 2 — Interface Web
+
+### Servidor de Interface (ex2/app_interface.js) — porta 16026
+
+Interface web desenvolvida com Express e Pug, que consome a API de dados do ex1.
+
+Rotas disponíveis:
+- GET /          — lista todas as reparações (tabela com id, data, nome, matrícula, marca, nr. intervenções)
+- GET /:id       — detalhe de uma reparação (quando o parâmetro é um ObjectId válido)
+- GET /:marca    — lista de reparações filtradas por marca (quando o parâmetro é uma string)
+
+A distinção entre reparação e marca é feita automaticamente pelo servidor, verificando se o parâmetro
+da rota é um ObjectId MongoDB válido ou não.
+
+### Arranque
+
+Todos os três serviços (mongo, api, interface) são orquestrados pelo docker-compose.yml na raiz do projeto.
+A interface depende da API, que por sua vez depende do MongoDB, garantindo a ordem correta de arranque.

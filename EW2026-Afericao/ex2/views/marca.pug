@@ -1,0 +1,32 @@
+extends layout.pug
+
+block content
+  .w3-container
+    h2 Marca: #{marca}
+
+    h3 Modelos intervencionados
+    ul
+      each modelo in [...new Set(repairs.map(r => r.viatura.modelo))].sort()
+        li= modelo
+
+    h3 Reparações
+    table.w3-table-all
+      tr.w3-teal
+        th Id
+        th Data
+        th Nome
+        th Matrícula
+        th Modelo
+        th Nº Intervenções
+      each repair in repairs
+        tr
+          td
+            a(href=`/${repair._id}`)= repair._id
+          td= repair.data
+          td= repair.nome
+          td= repair.viatura.matricula
+          td= repair.viatura.modelo
+          td= repair.nr_intervencoes
+
+    p
+      a.w3-button.w3-teal(href='/') ← Voltar à página principal

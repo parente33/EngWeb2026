@@ -109,5 +109,5 @@ TODO
 
 # Comandos
 
-docker compose up -d --build
-docker compose down -v --rmi all --remove-orphans (para apagar tudo)
+- docker compose up -d --build
+- docker compose down -v --rmi all --remove-orphans (para apagar tudo)

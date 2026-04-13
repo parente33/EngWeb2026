@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  h2 Caixa de Sugestoes
+
+  if erro && erro.length
+    .w3-panel.w3-red.w3-padding
+      p #{erro}
+
+  //- Formulário de nova sugestão (todos os utilizadores autenticados)
+  if utilizador
+    .w3-card.w3-padding.w3-margin-bottom
+      h4 Deixar uma Sugestão
+      form(action='/sugestoes' method='POST')
+        .w3-margin-bottom
+          textarea.w3-input.w3-border(name='texto' rows='4' placeholder='Escreve aqui a tua sugestão ou comentário sobre o site...' required)
+        button.w3-button.w3-dark-grey(type='submit') Enviar Sugestão
+  else
+    .w3-panel.w3-light-grey.w3-padding
+      p
+        a(href='/login') Faz login
+        |  para deixar uma sugestão.
+
+  //- Lista de sugestões (apenas visível a admins)
+  if utilizador && utilizador.nivel === 'administrador'
+    hr
+    h3 Sugestoes Recebidas
+    if sugestoes && sugestoes.length
+      each s in sugestoes
+        .w3-card.w3-padding.w3-margin-bottom
+          .w3-bar
+            p.w3-bar-item #{s.texto}
+          .w3-bar
+            p.w3-bar-item.w3-text-grey: small #{s.autor_username} &mdash; #{new Date(s.data).toLocaleDateString('pt-PT')}
+            form.w3-bar-item.w3-right(action=`/sugestoes/${s._id}/apagar` method='POST' style='margin:0;padding:0')
+              button.w3-button.w3-red.w3-small(type='submit' onclick='return confirm("Apagar esta sugestão?")') Apagar
+    else
+      p.w3-text-grey Ainda não há sugestões.
+  else if utilizador
+    .w3-panel.w3-light-grey.w3-padding.w3-margin-top
+      p.w3-text-grey A tua sugestão será analisada pelos administradores. Obrigado pelo contributo!

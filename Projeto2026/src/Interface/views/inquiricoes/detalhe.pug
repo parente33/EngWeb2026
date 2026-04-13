@@ -1,0 +1,141 @@
+extends ../layout
+
+block content
+  .w3-bar.w3-margin-bottom
+    a.w3-button.w3-grey(href='/inquiricoes') ← Voltar
+    if utilizador && utilizador.nivel === 'administrador'
+      a.w3-button.w3-dark-grey.w3-right(href=`/inquiricoes/${inquiricao.proc_numero}/editar`) Editar Registo
+
+  if erro && erro.length
+    .w3-panel.w3-red.w3-padding
+      p #{erro}
+
+  //- Dados do registo
+  .w3-card.w3-padding
+    h2 #{inquiricao.titulo}
+    p.w3-text-grey Processo nº #{inquiricao.proc_numero} &mdash; #{inquiricao.repositorio}
+
+    .w3-row-padding
+      .w3-col.m6
+        h4 Filiação
+        table.w3-table.w3-bordered
+          tr
+            td Requerente
+            td: strong #{inquiricao.requerente || '—'}
+          tr
+            td Pai
+            td #{inquiricao.pai || '—'}
+          tr
+            td Mãe
+            td #{inquiricao.mae || '—'}
+
+      .w3-col.m6
+        h4 Localização
+        table.w3-table.w3-bordered
+          tr
+            td Freguesia
+            td #{inquiricao.freguesia || '—'}
+          tr
+            td Concelho
+            td
+              if inquiricao.concelho
+                a(href=`/inquiricoes?concelho=${inquiricao.concelho}`) #{inquiricao.concelho}
+              else
+                | —
+          tr
+            td Distrito
+            td #{inquiricao.distrito || '—'}
+
+    .w3-row-padding.w3-margin-top
+      .w3-col.m6
+        h4 Datas
+        table.w3-table.w3-bordered
+          tr
+            td Data inicial
+            td #{inquiricao.data_inicial || '—'}
+          tr
+            td Data final
+            td #{inquiricao.data_final || '—'}
+
+      .w3-col.m6
+        h4 Arquivo
+        table.w3-table.w3-bordered
+          tr
+            td Cota
+            td #{inquiricao.cota_completa || '—'}
+          tr
+            td Caixa
+            td #{inquiricao.caixa || '—'}
+
+    if inquiricao.conteudo
+      .w3-margin-top
+        h4 Conteúdo
+        p #{inquiricao.conteudo}
+
+    if inquiricao.relacoes && inquiricao.relacoes.length
+      .w3-margin-top
+        h4 Relações Genealógicas
+        table.w3-table.w3-striped.w3-bordered
+          thead
+            tr.w3-dark-grey
+              th Nome
+              th Relação
+              th Processo
+          tbody
+            each rel in inquiricao.relacoes
+              tr
+                td #{rel.nome}
+                td #{rel.relacao}
+                td: a(href=`/inquiricoes/${rel.proc_numero}`) #{rel.proc_numero}
+
+  //- Posts
+  .w3-margin-top
+    h3 Posts
+    if posts && posts.length
+      each post in posts
+        .w3-card.w3-padding.w3-margin-bottom
+          .w3-bar
+            h4.w3-bar-item(style='margin:0;padding:0') #{post.titulo}
+            if utilizador && utilizador.nivel === 'administrador'
+              form.w3-bar-item.w3-right(action=`/posts/${post._id}/apagar` method='POST' style='margin:0;padding:0')
+                input(type='hidden' name='proc_numero' value=`${inquiricao.proc_numero}`)
+                button.w3-button.w3-red.w3-small(type='submit' onclick='return confirm("Apagar este post e todos os seus comentários?")') Apagar Post
+          p.w3-text-grey
+            small #{post.autor_username || 'Anónimo'} &mdash; #{new Date(post.data).toLocaleDateString('pt-PT')}
+          p #{post.corpo}
+
+          //- Comentários
+          if post.comentarios && post.comentarios.length
+            .w3-margin-left
+              h5 Comentários
+              each com in post.comentarios
+                .w3-panel.w3-light-grey
+                  p #{com.texto}
+                  .w3-bar
+                    p.w3-bar-item.w3-text-grey: small #{com.autor_username || 'Anónimo'} &mdash; #{new Date(com.data).toLocaleDateString('pt-PT')}
+                    if utilizador && utilizador.nivel === 'administrador'
+                      form.w3-bar-item.w3-right(action=`/posts/${post._id}/comentarios/${com._id}/apagar` method='POST' style='margin:0;padding:0')
+                        input(type='hidden' name='proc_numero' value=`${inquiricao.proc_numero}`)
+                        button.w3-button.w3-red.w3-small(type='submit' onclick='return confirm("Apagar este comentário?")') Apagar
+
+          //- Formulário de comentário
+          if utilizador
+            form.w3-margin-top(action=`/posts/${post._id}/comentarios` method='POST')
+              input(type='hidden' name='proc_numero' value=`${inquiricao.proc_numero}`)
+              input.w3-input.w3-border(type='text' name='texto' placeholder='Adicionar comentário...' required)
+              button.w3-button.w3-dark-grey.w3-margin-top(type='submit') Comentar
+    else
+      p.w3-text-grey Ainda não há posts sobre este registo.
+
+    //- Formulário de novo post
+    if utilizador
+      .w3-card.w3-padding.w3-margin-top
+        h4 Novo Post
+        form(action=`/inquiricoes/${inquiricao.proc_numero}/posts` method='POST')
+          .w3-margin-bottom
+            input.w3-input.w3-border(type='text' name='titulo' placeholder='Título' required)
+          .w3-margin-bottom
+            textarea.w3-input.w3-border(name='corpo' rows='4' placeholder='Escreve aqui...' required)
+          button.w3-button.w3-dark-grey(type='submit') Publicar
+    else
+      p.w3-text-grey: a(href='/login') Faz login para publicar um post.

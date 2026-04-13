@@ -1,0 +1,18 @@
+extends ../layout
+
+block content
+  .w3-card.w3-padding(style='max-width:400px;margin:auto')
+    h2 Login
+    if erro
+      .w3-panel.w3-red
+        p #{erro}
+    form(action='/login' method='POST')
+      .w3-margin-bottom
+        label Username
+        input.w3-input.w3-border(type='text' name='username' required autofocus)
+      .w3-margin-bottom
+        label Password
+        input.w3-input.w3-border(type='password' name='password' required)
+      button.w3-button.w3-dark-grey.w3-block(type='submit') Entrar
+    .w3-margin-top
+      p.w3-text-grey Ainda não tens conta? #[a(href='/registo') Regista-te]

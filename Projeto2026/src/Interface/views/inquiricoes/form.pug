@@ -1,0 +1,83 @@
+extends ../layout
+
+block content
+  a.w3-button.w3-grey.w3-margin-bottom(href='/inquiricoes') ← Voltar
+
+  if erro && erro.length
+    .w3-panel.w3-red.w3-padding
+      p #{erro}
+
+  .w3-card.w3-padding
+    h2 #{inquiricao && inquiricao.proc_numero ? 'Editar Registo' : 'Novo Registo'}
+
+    - const action = inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}/editar` : '/inquiricoes/novo'
+    form(action=action method='POST')
+
+      h4 Identificação
+      .w3-row-padding
+        .w3-col.m6.w3-margin-bottom
+          label Número de Processo
+          input.w3-input.w3-border(type='number' name='proc_numero' value=inquiricao && inquiricao.proc_numero ? inquiricao.proc_numero : '' required placeholder='Ex: 1234')
+        .w3-col.m6.w3-margin-bottom
+          label Título
+          input.w3-input.w3-border(type='text' name='titulo' value=inquiricao && inquiricao.titulo ? inquiricao.titulo : '' placeholder='Título do registo')
+
+      .w3-row-padding
+        .w3-col.m6.w3-margin-bottom
+          label Repositório
+          input.w3-input.w3-border(type='text' name='repositorio' value=inquiricao && inquiricao.repositorio ? inquiricao.repositorio : '' placeholder='Ex: ADB')
+        .w3-col.m6.w3-margin-bottom
+          label Cota Completa
+          input.w3-input.w3-border(type='text' name='cota_completa' value=inquiricao && inquiricao.cota_completa ? inquiricao.cota_completa : '' placeholder='Ex: PT/UM/ADB/...')
+
+      .w3-row-padding
+        .w3-col.m4.w3-margin-bottom
+          label Caixa
+          input.w3-input.w3-border(type='text' name='caixa' value=inquiricao && inquiricao.caixa ? inquiricao.caixa : '')
+        .w3-col.m4.w3-margin-bottom
+          label Data Inicial
+          input.w3-input.w3-border(type='text' name='data_inicial' value=inquiricao && inquiricao.data_inicial ? inquiricao.data_inicial : '' placeholder='Ex: 1800-01-01')
+        .w3-col.m4.w3-margin-bottom
+          label Data Final
+          input.w3-input.w3-border(type='text' name='data_final' value=inquiricao && inquiricao.data_final ? inquiricao.data_final : '' placeholder='Ex: 1800-12-31')
+
+      h4 Filiação
+      .w3-row-padding
+        .w3-col.m4.w3-margin-bottom
+          label Requerente
+          input.w3-input.w3-border(type='text' name='requerente' value=inquiricao && inquiricao.requerente ? inquiricao.requerente : '')
+        .w3-col.m4.w3-margin-bottom
+          label Pai
+          input.w3-input.w3-border(type='text' name='pai' value=inquiricao && inquiricao.pai ? inquiricao.pai : '')
+        .w3-col.m4.w3-margin-bottom
+          label Mãe
+          input.w3-input.w3-border(type='text' name='mae' value=inquiricao && inquiricao.mae ? inquiricao.mae : '')
+
+      h4 Localização
+      .w3-row-padding
+        .w3-col.m4.w3-margin-bottom
+          label Freguesia
+          input.w3-input.w3-border(type='text' name='freguesia' value=inquiricao && inquiricao.freguesia ? inquiricao.freguesia : '')
+        .w3-col.m4.w3-margin-bottom
+          label Concelho
+          input.w3-input.w3-border(type='text' name='concelho' value=inquiricao && inquiricao.concelho ? inquiricao.concelho : '')
+        .w3-col.m4.w3-margin-bottom
+          label Distrito
+          input.w3-input.w3-border(type='text' name='distrito' value=inquiricao && inquiricao.distrito ? inquiricao.distrito : '')
+
+      h4 Conteúdo
+      .w3-margin-bottom
+        label Descrição / Conteúdo
+        textarea.w3-input.w3-border(name='conteudo' rows='4' placeholder='Descrição do conteúdo do documento...') #{inquiricao && inquiricao.conteudo ? inquiricao.conteudo : ''}
+
+      .w3-row-padding
+        .w3-col.m6.w3-margin-bottom
+          label Notas Físicas
+          input.w3-input.w3-border(type='text' name='notas_fisicas' value=inquiricao && inquiricao.notas_fisicas ? inquiricao.notas_fisicas : '')
+        .w3-col.m6.w3-margin-bottom
+          label Nota
+          input.w3-input.w3-border(type='text' name='nota' value=inquiricao && inquiricao.nota ? inquiricao.nota : '')
+
+      .w3-margin-top
+        button.w3-button.w3-dark-grey(type='submit') #{inquiricao && inquiricao.proc_numero ? 'Guardar Alterações' : 'Criar Registo'}
+        a.w3-button.w3-grey.w3-margin-left(href=inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}` : '/inquiricoes') Cancelar

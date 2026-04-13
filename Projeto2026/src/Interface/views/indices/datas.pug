@@ -1,0 +1,16 @@
+extends ../layout
+
+block content
+  h2 Índice Cronológico
+  p.w3-text-grey #{anos.length} anos com registos
+
+  table.w3-table.w3-striped.w3-bordered
+    thead
+      tr.w3-dark-grey
+        th Ano
+        th Nº de Registos
+    tbody
+      each entrada in anos
+        tr
+          td: a(href=`/inquiricoes?ano=${entrada.ano}`) #{entrada.ano}
+          td #{entrada.total}

@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+  h2 Índice Toponímico
+
+  .w3-row-padding
+    .w3-col.m6
+      h3 Concelhos
+      p.w3-text-grey #{lugares.concelhos.length} concelhos
+      each concelho in lugares.concelhos
+        a.w3-button.w3-block.w3-left-align.w3-white.w3-border-bottom(href=`/inquiricoes?concelho=${encodeURIComponent(concelho)}`) #{concelho}
+
+    .w3-col.m6
+      h3 Distritos
+      p.w3-text-grey #{lugares.distritos.length} distritos
+      each distrito in lugares.distritos
+        a.w3-button.w3-block.w3-left-align.w3-white.w3-border-bottom(href=`/inquiricoes?distrito=${encodeURIComponent(distrito)}`) #{distrito}

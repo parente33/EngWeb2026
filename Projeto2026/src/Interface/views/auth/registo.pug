@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  .w3-card.w3-padding(style='max-width:400px;margin:auto')
+    h2 Registo
+    if erro
+      .w3-panel.w3-red
+        p #{erro}
+    form(action='/registo' method='POST')
+      .w3-margin-bottom
+        label Username
+        input.w3-input.w3-border(type='text' name='username' required autofocus)
+      .w3-margin-bottom
+        label Password
+        input.w3-input.w3-border(type='password' name='password' required)
+      .w3-margin-bottom
+        label Email
+        input.w3-input.w3-border(type='email' name='email' required)
+        label Filiação
+        select.w3-select.w3-border(name='filiacao' required)
+          option(value='') -- Seleciona --
+          option(value='estudante') Estudante
+          option(value='docente') Docente
+          option(value='investigador') Investigador
+          option(value='outro') Outro
+      .w3-margin-bottom
+        label Idade
+        input.w3-input.w3-border(type='number' name='idade' min='1' required)
+      .w3-margin-bottom
+        label Nível
+        select.w3-select.w3-border(name='nivel' required)
+          option(value='') -- Seleciona --
+          option(value='consumidor') Consumidor
+          option(value='administrador') Administrador
+      button.w3-button.w3-dark-grey.w3-block(type='submit') Registar
+    .w3-margin-top
+      p.w3-text-grey Já tens conta? #[a(href='/login') Faz login]

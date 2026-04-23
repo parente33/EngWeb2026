@@ -20,10 +20,11 @@ html(lang='pt')
           a.w3-bar-item.w3-button(href='/indice/lugares') Toponímico
           a.w3-bar-item.w3-button(href='/indice/datas') Cronológico
       if utilizador
-        a.w3-bar-item.w3-button(href='/sugestoes') Caixa de Sugestoes
+        a.w3-bar-item.w3-button(href='/sugestoes') Caixa de Sugestões
         if utilizador.nivel === 'administrador'
           a.w3-bar-item.w3-button(href='/inquiricoes/novo') + Novo Registo
         a.w3-bar-item.w3-button.w3-right(href='/logout') Sair (#{utilizador.username})
+        a.w3-bar-item.w3-button.w3-right(href='/perfil') O Meu Perfil
       else
         a.w3-bar-item.w3-button.w3-right(href='/registo') Registar
         a.w3-bar-item.w3-button.w3-right(href='/login') Login

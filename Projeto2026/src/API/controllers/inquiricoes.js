@@ -60,7 +60,8 @@ const inquiricaoController = {
 
     criarInquiricao: async function (req, res) {
         try {
-            const doc = new Inquiricao(req.body);
+            const dados = { ...req.body, criador: req.utilizador?.username || req.body.criador };
+            const doc = new Inquiricao(dados);
             const resultado = await doc.save();
             res.status(201).json(resultado);
         }
@@ -150,6 +151,16 @@ const inquiricaoController = {
                 { $project: { _id: 0, ano: '$_id', total: 1 } }
             ]);
             res.json(anos);
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
+    contarContribuicoes: async function (req, res) {
+        try {
+            const total = await Inquiricao.countDocuments({ criador: req.params.username });
+            res.json({ username: req.params.username, total });
         }
         catch (err) {
             res.status(500).json({ erro: err.message });

@@ -108,6 +108,34 @@ exports.perfil = async (req, res) => {
 };
 
 /*
+  PATCH /auth/perfil
+  Atualiza os campos editáveis do utilizador autenticado (bio e fotoPerfil)
+  Header: Authorization: Bearer <token>
+*/
+exports.atualizarPerfil = async (req, res) => {
+  try {
+    const camposPermitidos = ['bio', 'fotoPerfil'];
+    const atualizacao = {};
+    for (const campo of camposPermitidos) {
+      if (req.body[campo] !== undefined) atualizacao[campo] = req.body[campo];
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.utilizador.id,
+      atualizacao,
+      { new: true }
+    ).select('-hash -salt');
+
+    if (!user) return res.status(404).json({ erro: 'Utilizador não encontrado' });
+    res.json(user);
+  }
+  catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+};
+
+
+/*
   GET /auth/utilizadores — listar todos (só admin)
 */
 exports.listarUtilizadores = async (req, res) => {

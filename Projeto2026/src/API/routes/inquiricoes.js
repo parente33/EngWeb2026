@@ -16,6 +16,10 @@ router.get('/indice/lugares', inquiricaoController.indiceLugares);
 // Lista de anos únicos
 router.get('/indice/datas', inquiricaoController.indiceDatas);
 
+// ----------------------------------------- Contribuições ----------------------------------------- //
+
+// Contar contribuições de um utilizador
+router.get('/contribuicoes/:username', inquiricaoController.contarContribuicoes);
 
 // ----------------------------------------- CRUD sobre inquirições ----------------------------------------- //
 

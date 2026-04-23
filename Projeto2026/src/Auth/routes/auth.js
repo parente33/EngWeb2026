@@ -13,6 +13,7 @@ router.get('/verificar', controller.verificar);
 
 // Rotas protegidas (requerem token válido)
 router.get('/perfil', verifyToken, controller.perfil);
+router.patch('/perfil', verifyToken, controller.atualizarPerfil);
 
 // Rotas de administração (requerem token + nível administrador)
 router.get('/utilizadores', verifyToken, isAdmin, controller.listarUtilizadores);

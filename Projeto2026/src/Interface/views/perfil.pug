@@ -1,0 +1,103 @@
+extends layout
+
+block content
+  .w3-row-padding.w3-margin-top
+    .w3-col.m4.l3
+      //- Card com a foto de perfil
+      .w3-card.w3-padding.w3-center.w3-white.w3-round-large
+        - const fotoPerfil = user.fotoPerfil || '/images/perfil_default.png'
+        img.w3-cicle.w3-margin-top(
+          src=fotoPerfil
+          alt='Foto de Perfil'
+          style='width:140px;height:140px;object-fit:cover;border:4px solid #555'
+          onerror="this.src='/images/perfil_default.png'"
+        )
+        h3.w3-margin-bottom(style='margin-top:12px;margin-bottom:4px') @#{user.username}
+        if user.nivel === 'administrador'
+          span.w3-tag.w3-dark-grey.w3-round.w3-small.w3-margin-top Administrador
+        else
+          span.w3-tag.w3-grey.w3-round.w3-small.w3-margin.top Consumidor
+
+    .w3-col.m8.l9
+      if sucesso
+        .w3-panel.w3-green.w3-round.w3-padding(style='margin-bottom:16px')
+          p.w3-small(style='margin:0') #{sucesso}
+
+      if erro
+        .w3-panel.w3-red.w3-round.w3-padding(style='margin-bottom:16px')
+          p.w3-small(style='margin:0') #{erro}
+
+    .w3-col.m8.l9
+      //- Card com os detalhes
+      .w3-card.w3-white.w3-round-large
+        .w3-container.w3-dark-grey.w3-round-top.w3-padding
+          h4(style='margin:0') Informações de Perfil
+
+        .w3-container.w3-padding
+          table.w3-table.w3-striped.w3-bordered
+            tbody
+              tr
+                td.w3-text-grey(style='width:40%')
+                  strong Idade
+                td #{user.idade} anos
+
+              tr
+                td.w3-text-grey
+                  strong Filiação
+                td #{user.filiacao}
+
+              tr
+                td.w3-text-grey
+                  strong Email
+                td #{user.email}
+
+              tr
+                td.w3-text-grey
+                  strong Nível de acesso
+                td
+                  if user.nivel === 'administrador'
+                    span.w3-tag.w3-dark-grey.w3-round Administrador
+                  else
+                    span.w3-tag.w3-light-grey.w3-round Consumidor
+
+              tr
+                td.w3-text-grey
+                  strong Utilizador desde
+                td
+                  - const dataRegisto = new Date(user.dataRegisto).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })
+                  | #{dataRegisto}
+
+              if user.dataUltimoAcesso
+                tr
+                  td.w3-text-grey
+                    strong Último acesso
+                  td
+                    - const dataAcesso = new Date(user.dataUltimoAcesso).toLocaleDateString('pt-PT', { hour12: false })
+                    | #{dataAcesso}
+
+              if user.nivel === 'administrador' && contribuicoes !== null
+                tr
+                  td.w3-text-grey
+                    strong Nº de contribuições
+                  td
+                    strong.w3-text-dark-grey #{contribuicoes}  registo(s) criado(s)
+
+      .w3-card.w3-white-round-large.w3-margin-top
+        .w3-container.w3-dark-grey.w3-round-top.w3-padding
+          h4(style='margin:0') Biografia
+
+        .w3-container.w3-padding
+          form(action='/perfil' method='POST')
+            if user.bio
+              p.w3-text-grey.w3-small(style='margin-botton:8px') A tua biografia:
+            else
+              p.w3-text-grey.w3-small(style='margin-botton:8px') Ainda não escreveste nada sobre ti. Apresenta-te!
+            textarea.w3-input.w3-border.w3-round(
+              name='bio'
+              rows='5'
+              maxlength='600'
+              placeholder='Escreve aqui um pouco sobre ti - quem és, a que te dedicas, o teu interesse neste arquivo...'
+              style='resize:vertical;font-family:inherit;font-size:0.95em'
+            ) #{user.bio || ''}
+            p.w3-text-grey.w3-small.w3-right(style='margin:4px 0 12px') máx. 600 caracteres
+            button.w3-button.w3-dark-grey.w3-round(type='submit') Guardar biografia

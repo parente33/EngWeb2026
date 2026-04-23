@@ -288,6 +288,60 @@ router.post('/sugestoes/:id/apagar', async (req, res) => {
   req.session.save(() => res.redirect('/sugestoes'));
 });
 
+// ------------------------------------------------- Perfil ------------------------------------------------- //
+
+router.get('/perfil', async (req, res, next) => {
+  if (!req.session.utilizador) return res.redirect('/login');
+  const date = new Date().toLocaleDateString('pt-PT', { hour12: false });
+  try {
+    const perfilResp = await axios.get(`${AUTH_URL}/auth/perfil`, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    const user = perfilResp.data;
+
+    // Buscar número de contribuições, apenas para admins
+    let contribuicoes = null;
+    if (user.nivel === 'administrador') {
+      try {
+        const contribResp = await axios.get(`${API_URL}/inquiricoes/contribuicoes/${user.username}`);
+        contribuicoes = contribResp.data.total;
+      }
+      catch (_) {
+        contribuicoes = 0;
+      }
+    }
+
+    const sucesso = req.session.perfilSucesso || null;
+    const erro    = req.session.perfilErro    || null;
+    delete req.session.perfilSucesso;
+    delete req.session.perfilErro;
+
+    req.session.save(() => {
+      res.render('perfil', { title: 'O Meu Perfil', date, user, contribuicoes, sucesso, erro });
+    });
+
+  }
+  catch (err) {
+    next(err);
+  }
+})
+
+router.post('/perfil', async (req, res, next) => {
+  if (!req.session.utilizador) return res.redirect('/login');
+  try {
+    await axios.patch(`${AUTH_URL}/auth/perfil`, { bio: req.body.bio }, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    req.session.perfilSucesso = 'Biografia atualizada com sucesso!';
+    req.session.perfilErro = null;
+  }
+  catch (err) {
+    req.session.perfilSucesso = null;
+    req.session.perfilErro = err.response?.data?.erro || `Erro ao guardar a biografia (${err.message})`;
+  }
+  req.session.save(() => res.redirect('/perfil'));
+});
+
 // ------------------------------------------------- Autenticação ------------------------------------------------- //
 
 router.get('/login', (req, res) => {

@@ -105,7 +105,7 @@ TODO
 - Admins apagarem registos (as rotas já estão criadas, só falta mesmo o botão acho eu)
 - Poder-se navegar de registo para registo, através das filiações
 - Em relação à anterior, sempre que se adicionarem novas filiações, ter cuidado para serem links válidos, ou vão para página de erro
-- Página de perfil, com as informações dadas no registo (username, email ?, idade, filiação, talvez uma secção para biografia, pronomes, ...)
+- Existe página de perfil, a biografia fica meio feio estar como está, e falta conseguir dar upload à foto de perfil (also deve existir uma zona na página em detalhe do registo com o criador desse registo, que dá link para a página do perfil dessa conta)
 
 # Comandos
 

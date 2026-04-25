@@ -36,6 +36,34 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// ---- Relações genealógicas ----
+router.post('/inquiricoes/:proc_numero/relacoes/:proc_relacionado', async (req, res) => {
+  try {
+    const { proc_numero, proc_relacionado } = req.params;
+    const r = await axios.post(
+      `${API_URL}/inquiricoes/${proc_numero}/relacoes/${proc_relacionado}`,
+      req.body,
+      { headers: authHeader(req) }
+    );
+    res.json(r.data);
+  } catch (err) {
+    res.status(err.response?.status || 500).json({ erro: err.response?.data?.erro || err.message });
+  }
+});
+
+router.delete('/inquiricoes/:proc_numero/relacoes/:proc_relacionado', async (req, res) => {
+  try {
+    const { proc_numero, proc_relacionado } = req.params;
+    await axios.delete(
+      `${API_URL}/inquiricoes/${proc_numero}/relacoes/${proc_relacionado}`,
+      { headers: authHeader(req) }
+    );
+    res.status(204).send();
+  } catch (err) {
+    res.status(err.response?.status || 500).json({ erro: err.response?.data?.erro || err.message });
+  }
+});
+
 // ------------------------------------------------- Listagem e detalhe ------------------------------------------------- //
 
 router.get('/inquiricoes', async (req, res, next) => {
@@ -175,6 +203,19 @@ router.post('/inquiricoes/:proc_numero/editar', async (req, res, next) => {
     });
   }
 });
+
+// Apagar registo (admin only)
+router.post('/inquiricoes/:proc_numero/apagar', async (req, res) => {
+  if (!req.session.utilizador || req.session.utilizador.nivel !== 'administrador') return res.redirect('/login');
+  try {
+    await axios.delete(`${API_URL}/inquiricoes/${req.params.proc_numero}`, { headers: authHeader(req) });
+    res.redirect('/inquiricoes');
+  }
+  catch (err) {
+    req.session.erro = err.response?.data?.erro || 'Erro ao apagar registo';
+    req.session.save(() => res.redirect(`/inquiricoes/${req.params.proc_numero}`));
+  }
+})
 
 // Apagar post (admin only)
 router.post('/posts/:id/apagar', async (req, res) => {

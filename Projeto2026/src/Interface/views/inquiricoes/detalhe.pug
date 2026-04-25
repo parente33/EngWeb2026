@@ -4,7 +4,10 @@ block content
   .w3-bar.w3-margin-bottom
     a.w3-button.w3-grey(href='/inquiricoes') ← Voltar
     if utilizador && utilizador.nivel === 'administrador'
-      a.w3-button.w3-dark-grey.w3-right(href=`/inquiricoes/${inquiricao.proc_numero}/editar`) Editar Registo
+      .w3-right
+        a.w3-button.w3-dark-grey(href=`/inquiricoes/${inquiricao.proc_numero}/editar`) Editar Registo
+        form.w3-bar-item(action=`/inquiricoes/${inquiricao.proc_numero}/apagar` method='POST' style='display:inline;margin:0;padding:0')
+          button.w3-button.w3-red(type='submit' onclick=`return confirm('Tens a certeza que queres apagar o processo ${inquiricao.proc_numero}? Esta ação é irreversível.')`) Apagar Registo
 
   if erro && erro.length
     .w3-panel.w3-red.w3-padding

@@ -47,4 +47,12 @@ router.get('/:proc_numero/posts', postController.listarPorInquiricao);
 // Criar post (requer login)
 router.post('/:proc_numero/posts', verifyToken, postController.criarPost);
 
+// ----------------------------------------- Relações genealógicas ----------------------------------------- //
+
+// Adicionar relação entre dois registos (requer login)
+router.post('/:proc_numero/relacoes/:proc_relacionado', verifyToken, inquiricaoController.adicionarRelacao);
+
+// Remover relação entre dois registos (requer login)
+router.delete('/:proc_numero/relacoes/:proc_relacionado', verifyToken, inquiricaoController.removerRelacao);
+
 module.exports = router;

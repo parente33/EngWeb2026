@@ -81,3 +81,174 @@ block content
       .w3-margin-top
         button.w3-button.w3-dark-grey(type='submit') #{inquiricao && inquiricao.proc_numero ? 'Guardar Alterações' : 'Criar Registo'}
         a.w3-button.w3-grey.w3-margin-left(href=inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}` : '/inquiricoes') Cancelar
+
+  //- Relações genealógicas — fora do form, geridas por AJAX
+  if inquiricao && inquiricao.proc_numero
+    .w3-card.w3-padding.w3-margin-top
+      h4 Relações Genealógicas
+
+      //- Tabela com as relações já existentes
+      #tabela-relacoes
+        if inquiricao.relacoes && inquiricao.relacoes.length
+          table.w3-table.w3-bordered.w3-margin-bottom(style='table-layout:fixed')
+            thead
+              tr.w3-dark-grey
+                th(style='width:22%') Requerente
+                th(style='width:22%') Relacionado
+                th(style='width:20%') Grau do requerente
+                th(style='width:16%')
+            tbody
+              each rel in inquiricao.relacoes
+                tr(id=`rel-${rel.proc_numero}`)
+                  td: strong #{inquiricao.requerente || '(este registo)'}
+                  td: a(href=`/inquiricoes/${rel.proc_numero}`) #{rel.nome || rel.proc_numero}
+                  td #{rel.relacao_requerente || rel.relacao || '—'}
+                  td
+                    button.w3-button.w3-red.w3-small(
+                      type='button'
+                      onclick=`removerRelacao(${inquiricao.proc_numero}, ${rel.proc_numero}, this)`
+                    ) Remover
+        else
+          p.w3-text-grey#sem-relacoes Ainda não há relações registadas.
+
+      //- Formulário para adicionar nova relação
+      .w3-card.w3-pale-blue.w3-padding.w3-margin-top(style='border-left:4px solid #2196F3')
+        h5.w3-margin-top(style='margin-top:0') Adicionar nova relação
+
+        .w3-row-padding
+          //- Coluna 1: requerente (só leitura)
+          .w3-col.m3.w3-margin-bottom
+            label Requerente
+            input.w3-input.w3-border.w3-light-grey(
+              type='text'
+              value=inquiricao.requerente || `Proc. ${inquiricao.proc_numero}`
+              readonly
+              style='cursor:not-allowed'
+            )
+
+          //- Coluna 2: número de processo do relacionado
+          .w3-col.m3.w3-margin-bottom
+            label Nº Processo do Relacionado
+            input#rel-proc-numero.w3-input.w3-border(
+              type='number'
+              placeholder='Ex: 1234'
+              min='1'
+            )
+
+          //- Coluna 3: grau do requerente
+          .w3-col.m3.w3-margin-bottom
+            label Grau do requerente
+            input#rel-grau-requerente.w3-input.w3-border(
+              type='text'
+              placeholder='Ex: sobrinho, neto...'
+            )
+
+        .w3-margin-top
+          button#btn-adicionar-relacao.w3-button.w3-blue(type='button') + Adicionar relação
+          span#msg-relacao.w3-margin-left(style='font-size:.9em')
+
+  if inquiricao && inquiricao.proc_numero
+    script.
+      const PROC_NUMERO = !{JSON.stringify(inquiricao.proc_numero)};
+      const REQUERENTE  = !{JSON.stringify(inquiricao.requerente || '')};
+
+      // ---- Adicionar relação ----
+      document.getElementById('btn-adicionar-relacao').addEventListener('click', async () => {
+        const proc_b = parseInt(document.getElementById('rel-proc-numero').value);
+        const rel_req = document.getElementById('rel-grau-requerente').value.trim();
+        const msg             = document.getElementById('msg-relacao');
+
+        if (!proc_b)   { mostrarMsg('Seleciona um registo relacionado.', 'red'); return; }
+        if (!rel_req)  { mostrarMsg('Preenche o grau do requerente.', 'red');   return; }
+        if (proc_b === PROC_NUMERO) { mostrarMsg('Um registo não se pode relacionar consigo próprio.', 'red'); return; }
+
+        try {
+          const r = await fetch(`/inquiricoes/${PROC_NUMERO}/relacoes/${proc_b}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ relacao: rel_req })
+          });
+          if (!r.ok) {
+            const err = await r.json();
+            mostrarMsg(err.erro || 'Erro ao adicionar relação.', 'red');
+            return;
+          }
+          const dados = await r.json();
+          // A API devolve os dois documentos actualizados; usamos o nome do docB
+          const nomeRelacionado = dados.relacoes?.find(r => r.proc_numero === proc_b)?.nome || String(proc_b);
+          adicionarLinhaTabela(proc_b, nomeRelacionado, rel_req);
+          // Limpa formulário
+          document.getElementById('rel-proc-numero').value = '';
+          document.getElementById('rel-grau-requerente').value = '';
+          mostrarMsg('Relação adicionada com sucesso!', 'green');
+        } catch(e) {
+          mostrarMsg('Erro: ' + e.message, 'red');
+        }
+      });
+
+      // ---- Remover relação ----
+      async function removerRelacao(proc_a, proc_b, btn) {
+        if (!confirm(`Remover a relação com o processo ${proc_b}? A relação será removida dos dois registos.`)) return;
+        try {
+          const r = await fetch(`/inquiricoes/${proc_a}/relacoes/${proc_b}`, { method: 'DELETE' });
+          if (!r.ok) {
+            const err = await r.json().catch(() => ({}));
+            alert(err.erro || 'Erro ao remover relação.');
+            return;
+          }
+          const linha = document.getElementById(`rel-${proc_b}`);
+          if (linha) linha.remove();
+          // Se a tabela ficou vazia, mostra a mensagem
+          const tbody = document.querySelector('#tabela-relacoes tbody');
+          if (tbody && !tbody.querySelector('tr')) {
+            const semRel = document.getElementById('sem-relacoes');
+            if (!semRel) {
+              const p = document.createElement('p');
+              p.id = 'sem-relacoes'; p.className = 'w3-text-grey';
+              p.textContent = 'Ainda não há relações registadas.';
+              document.getElementById('tabela-relacoes').appendChild(p);
+            }
+          }
+        } catch(e) {
+          alert('Erro de rede ao remover relação.');
+        }
+      }
+
+      // ---- Helpers ----
+      function adicionarLinhaTabela(proc_b, nome, rel_req, rel_rel) {
+        let tabela = document.querySelector('#tabela-relacoes table');
+        // Se não havia tabela ainda, cria-a
+        if (!tabela) {
+          const div = document.getElementById('tabela-relacoes');
+          const semRel = document.getElementById('sem-relacoes');
+          if (semRel) semRel.remove();
+          div.innerHTML = `
+            <table class="w3-table w3-bordered w3-margin-bottom" style="table-layout:fixed">
+              <thead><tr class="w3-dark-grey">
+                <th style="width:25%">Requerente</th>
+                <th style="width:25%">Requerente</th>
+                <th style="width:25%">Grau do requerente</th>
+                <th style="width:20%"></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>`;
+          tabela = div.querySelector('table');
+        }
+        const tr = document.createElement('tr');
+        tr.id = `rel-${proc_b}`;
+        tr.innerHTML = `
+          <td><strong>${REQUERENTE || '(este registo)'}</strong></td>
+          <td><a href="/inquiricoes/${proc_b}">${nome || proc_b}</a></td>
+          <td>${rel_req}</td>
+          <td><button class="w3-button w3-red w3-small" type="button"
+              onclick="removerRelacao(${PROC_NUMERO}, ${proc_b}, this)">Remover</button></td>`;
+        tabela.querySelector('tbody').appendChild(tr);
+      }
+
+      function mostrarMsg(texto, cor) {
+        const el = document.getElementById('msg-relacao');
+        el.textContent = texto;
+        el.style.color = cor === 'red' ? '#c00' : '#2a7a2a';
+        clearTimeout(el._t);
+        el._t = setTimeout(() => { el.textContent = ''; }, 4000);
+      }

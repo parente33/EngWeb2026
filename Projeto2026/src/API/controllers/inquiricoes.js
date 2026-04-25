@@ -72,9 +72,12 @@ const inquiricaoController = {
 
     atualizarInquiricao: async function (req, res) {
         try {
+            // Não se deixa o form principal sobrescrever as relações
+            const { relacoes, ...campos } = req.body;
+
             const doc = await Inquiricao.findOneAndUpdate(
                 { proc_numero: req.params.proc_numero },
-                req.body,
+                { $set: campos },
                 { new: true }
             );
             if (!doc) return res.status(404).json({ erro: 'Registo não encontrado...' });
@@ -161,6 +164,70 @@ const inquiricaoController = {
         try {
             const total = await Inquiricao.countDocuments({ criador: req.params.username });
             res.json({ username: req.params.username, total });
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
+    // POST /inquiricoes/:proc_numero/relacoes
+    // Body: { proc_relacionado, nome_relacionado, relacao_requerente, relacao_relacionado }
+    // Atualiza ambos os registos de forma atómica
+    adicionarRelacao: async function (req, res) {
+        try {
+            const proc_a = parseInt(req.params.proc_numero);
+            const proc_b = parseInt(req.params.proc_relacionado);
+            const { relacao } = req.body;
+
+            if (!proc_b || !relacao)
+                return res.status(400).json({ erro: 'Faltam campos obrigatórios (proc_relacionado, relacao)' });
+
+            const [docA, docB] = await Promise.all([
+                Inquiricao.findOne({ proc_numero: proc_a }),
+                Inquiricao.findOne({ proc_numero: proc_b })
+            ]);
+            if (!docA) return res.status(404).json({ erro: `Registo ${proc_a} não encontrado` });
+            if (!docB) return res.status(404).json({ erro: `Registo ${proc_b} não encontrado` });
+
+            // Evitar duplicado
+            docA.relacoes = (docA.relacoes || []).filter(r => r.proc_numero !== proc_b);
+
+            docA.relacoes.push({ nome: docB.requerente, relacao, proc_numero: proc_b });
+            docA.markModified('relacoes');
+            await docA.save();
+            
+            res.json(docA);
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
+    // DELETE /inquiricoes/:proc_numero/relacoes/:proc_relacionado
+    // Remove a relação de ambos os registos
+    removerRelacao: async function (req, res) {
+        try {
+            const proc_a = parseInt(req.params.proc_numero);
+            const proc_b = parseInt(req.params.proc_relacionado);
+
+            const [docA, docB] = await Promise.all([
+                Inquiricao.findOne({ proc_numero: proc_a }),
+                Inquiricao.findOne({ proc_numero: proc_b })
+            ]);
+
+            if (docA) {
+                docA.relacoes = (docA.relacoes || []).filter(r => r.proc_numero !== proc_b);
+                docA.markModified('relacoes');
+                await docA.save();
+            }
+
+            if (docB) {
+                docB.relacoes = (docB.relacoes || []).filter(r => r.proc_numero !== proc_a);
+                docB.markModified('relacoes');
+                await docB.save();
+            }
+
+            res.status(204).send();
         }
         catch (err) {
             res.status(500).json({ erro: err.message });

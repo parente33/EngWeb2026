@@ -1,9 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const multer = require('multer');
+const FormData = require('form-data');
+const path = require('path');
+const fs = require('fs');
 
 const API_URL  = process.env.API_URL  || 'http://localhost:3001';
 const AUTH_URL = process.env.AUTH_URL || 'http://localhost:3002';
+
+// Multer para upload temporário de foto de perfil
+const uploadTemp = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Tipo de ficheiro não permitido. Use JPG, PNG, GIF ou WebP.'));
+  }
+});
 
 // Middleware local — injeta o utilizador autenticado em todas as views
 router.use((req, res, next) => {
@@ -16,7 +32,6 @@ router.use((req, res, next) => {
 function authHeader(req) {
   return req.session.token ? { Authorization: `Bearer ${req.session.token}` } : {};
 }
-
 
 // ------------------------------------------------- Página inicial ------------------------------------------------- //
 
@@ -125,11 +140,23 @@ router.get('/inquiricoes/:proc_numero', async (req, res, next) => {
       axios.get(`${API_URL}/inquiricoes/${req.params.proc_numero}`),
       axios.get(`${API_URL}/inquiricoes/${req.params.proc_numero}/posts`)
     ]);
+    const inquiricao = rInq.data;
+
+    // Buscar dados públicos do criador do registo (se existir)
+    let criadorInfo = null;
+    if (inquiricao.criador) {
+      try {
+        const rCriador = await axios.get(`${AUTH_URL}/auth/utilizadores/${encodeURIComponent(inquiricao.criador)}`);
+        criadorInfo = rCriador.data;
+      } catch (_) {}
+    }
+
     res.render('inquiricoes/detalhe', {
       title: rInq.data.titulo,
       date,
-      inquiricao: rInq.data,
+      inquiricao,
       posts: rPosts.data.dados,
+      criadorInfo,
       erro
     });
   }
@@ -381,6 +408,54 @@ router.post('/perfil', async (req, res, next) => {
     req.session.perfilErro = err.response?.data?.erro || `Erro ao guardar a biografia (${err.message})`;
   }
   req.session.save(() => res.redirect('/perfil'));
+});
+
+router.post('/perfil/foto', uploadTemp.single('foto'), async (req, res, next) => {
+  if (!req.session.utilizador) return res.redirect('/login');
+  try {
+    if (!req.file) {
+      req.session.perfilErro = 'Nenhum ficheiro selecionado.';
+      return req.session.save(() => res.redirect('/perfil'));
+    }
+    const form = new FormData();
+    form.append('foto', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype
+    });
+    await axios.post(`${AUTH_URL}/auth/perfil/foto`, form, {
+      headers: {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${req.session.token}`
+      }
+    });
+    req.session.perfilSucesso = 'Foto de perfil atualizada com sucesso!';
+    req.session.perfilErro = null;
+  } catch (err) {
+    req.session.perfilSucesso = null;
+    req.session.perfilErro = err.response?.data?.erro || `Erro ao atualizar a foto (${err.message})`;
+  }
+  req.session.save(() => res.redirect('/perfil'));
+});
+
+// Perfil público de outro utilizador
+router.get('/utilizadores/:username', async (req, res, next) => {
+  try {
+    const date = new Date().toLocaleString('pt-PT', { hour12: false });
+    const rUser = await axios.get(`${AUTH_URL}/auth/utilizadores/${encodeURIComponent(req.params.username)}`);
+    const userPublico = rUser.data;
+    let contribuicoes = null;
+    try {
+      const rContrib = await axios.get(`${API_URL}/inquiricoes/utilizador/${encodeURIComponent(req.params.username)}/total`);
+      contribuicoes = rContrib.data.total;
+    } catch (_) {}
+    res.render('perfil_publico', { title: `Perfil de @${userPublico.username}`, date, userPublico, contribuicoes });
+  } catch (err) {
+    if (err.response?.status === 404) {
+      const date = new Date().toLocaleString('pt-PT', { hour12: false });
+      return res.status(404).render('error', { title: 'Utilizador não encontrado', date, message: 'Utilizador não encontrado', error: {} });
+    }
+    next(err);
+  }
 });
 
 // ------------------------------------------------- Autenticação ------------------------------------------------- //

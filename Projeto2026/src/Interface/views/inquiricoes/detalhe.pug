@@ -38,6 +38,7 @@ block content
           tr
             td Freguesia
             td #{inquiricao.freguesia || '—'}
+            //- Mudar esta parte para serem hyperlinks também
           tr
             td Concelho
             td
@@ -91,6 +92,12 @@ block content
                 td #{rel.relacao}
                 td: a(href=`/inquiricoes/${rel.proc_numero}`) #{rel.proc_numero}
 
+  //- Criador do registo
+  if criadorInfo
+    p.w3-text-grey.w3-small.w3-margin-top
+      | Criado por&nbsp;
+      a(href=`/utilizadores/${criadorInfo.username}`) @#{criadorInfo.username}
+
   //- Posts
   .w3-margin-top
     h3 Posts
@@ -104,7 +111,12 @@ block content
                 input(type='hidden' name='proc_numero' value=`${inquiricao.proc_numero}`)
                 button.w3-button.w3-red.w3-small(type='submit' onclick='return confirm("Apagar este post e todos os seus comentários?")') Apagar Post
           p.w3-text-grey
-            small #{post.autor_username || 'Anónimo'} &mdash; #{new Date(post.data).toLocaleDateString('pt-PT')}
+            small
+              if post.autor_username
+                a(href=`/utilizadores/${post.autor_username}`) @#{post.autor_username}
+              else
+                | Anónimo
+              | &mdash; #{new Date(post.data).toLocaleDateString('pt-PT')}
           p #{post.corpo}
 
           //- Comentários
@@ -115,7 +127,12 @@ block content
                 .w3-panel.w3-light-grey
                   p #{com.texto}
                   .w3-bar
-                    p.w3-bar-item.w3-text-grey: small #{com.autor_username || 'Anónimo'} &mdash; #{new Date(com.data).toLocaleDateString('pt-PT')}
+                    p.w3-bar-item.w3-text-grey: small
+                      if com.autor_username
+                        a(href=`/utilizadores/${com.autor_username}`) @#{com.autor_username}
+                      else
+                        | Anónimo
+                      | &mdash; #{new Date(com.data).toLocaleDateString('pt-PT')}
                     if utilizador && utilizador.nivel === 'administrador'
                       form.w3-bar-item.w3-right(action=`/posts/${post._id}/comentarios/${com._id}/apagar` method='POST' style='margin:0;padding:0')
                         input(type='hidden' name='proc_numero' value=`${inquiricao.proc_numero}`)

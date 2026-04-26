@@ -102,7 +102,6 @@ TODO
 
 # TODO (Para além de melhorar a interface):
 
-- Existe página de perfil, a biografia fica meio feio estar como está, e falta conseguir dar upload à foto de perfil (also deve existir uma zona na página em detalhe do registo com o criador desse registo, que dá link para a página do perfil dessa conta)
 
 # Comandos
 

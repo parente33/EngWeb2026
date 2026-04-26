@@ -14,6 +14,10 @@ router.get('/verificar', controller.verificar);
 // Rotas protegidas (requerem token válido)
 router.get('/perfil', verifyToken, controller.perfil);
 router.patch('/perfil', verifyToken, controller.atualizarPerfil);
+router.post('/perfil/foto', verifyToken, controller.uploadMiddleware, controller.uploadFotoPerfil);
+
+// Perfil público por username (sem autenticação)
+router.get('/utilizadores/:username', controller.perfilPublico);
 
 // Rotas de administração (requerem token + nível administrador)
 router.get('/utilizadores', verifyToken, isAdmin, controller.listarUtilizadores);

@@ -9,6 +9,23 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+const AUTH_URL = process.env.AUTH_URL || 'http://localhost:3002';
+
+// Proxy de /uploads/ → Auth server (as fotos de perfil são servidas pela Auth)
+app.use('/uploads', async (req, res) => {
+  try {
+    const axios = require('axios');
+    const targetUrl = `${AUTH_URL}/uploads${req.path}`;
+    const response = await axios.get(targetUrl, { responseType: 'stream' });
+    res.setHeader('Content-Type', response.headers['content-type'] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    response.data.pipe(res);
+  } catch (err) {
+    if (err.response?.status === 404) return res.status(404).send('Not found');
+    res.status(502).send('Bad gateway');
+  }
+}); 
+
 app.use(session({
   secret: 'EngWeb2026',
   resave: false,

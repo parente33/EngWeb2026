@@ -9,6 +9,7 @@ const createError   = require('http-errors');
 var app = express();
 
 // ------------------------------ Ligação ao mongoDB ------------------------------ //
+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/inquiricoes_db';
 
 mongoose.connect(MONGO_URI)
@@ -19,10 +20,19 @@ mongoose.connect(MONGO_URI)
   });
 
 // ------------------------------ Middleware ------------------------------ //
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Garantir que a pasta de uploads existe
+const fs   = require('fs');
+const path = require('path');
+const uploadsDir = path.join(__dirname, 'public', 'uploads', 'perfis');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'segredo_dev',
@@ -32,6 +42,7 @@ app.use(session({
 }));
 
 // ------------------------------ Passport ------------------------------ //
+
 const User = require('./models/user');
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
@@ -41,6 +52,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ------------------------------ Rotas ------------------------------ //
+
 const authRouter = require('./routes/auth');
 app.use('/auth', authRouter);
 

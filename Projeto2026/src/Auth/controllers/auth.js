@@ -1,10 +1,40 @@
 const passport = require('passport');
 const jwt      = require('jsonwebtoken');
+const path     = require('path');
+const fs       = require('fs');
+const multer   = require('multer');
 const User     = require('../models/user');
 
 const JWT_SECRET  = process.env.JWT_SECRET  || 'jwt_segredo_dev';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '8h';
 
+// ------------------------------------------------- Multer ------------------------------------------------- //
+
+const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
+try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (_) {}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${req.utilizador.id}${ext}`);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true);
+  else cb(new Error('Tipo de ficheiro não permitido. Use JPG, PNG, GIF ou WebP.'));
+};
+
+// Exportado e usado nas rotas como middleware antes do handler
+exports.uploadMiddleware = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 3 * 1024 * 1024 }
+}).single('foto');
+
+// ------------------------------------------------- JWT ------------------------------------------------- //
 
 // Gerar token JWT com a informação relevante do utilizador
 function gerarToken(user) {
@@ -19,6 +49,8 @@ function gerarToken(user) {
     { expiresIn: JWT_EXPIRES }
   );
 }
+
+// ------------------------------------------------- Auth ------------------------------------------------- //
 
 /*
   POST /auth/registo
@@ -90,6 +122,8 @@ exports.verificar = (req, res) => {
   });
 };
 
+// ------------------------------------------------- Perfil ------------------------------------------------- //
+
 /*
   GET /auth/perfil
   Devolve os dados do utilizador autenticado
@@ -134,6 +168,61 @@ exports.atualizarPerfil = async (req, res) => {
   }
 };
 
+/*
+  POST /auth/perfil/foto
+  Faz upload da foto de perfil do utilizador autenticado
+  Header: Authorization: Bearer <token>
+  Body: multipart/form-data com campo 'foto'
+*/
+exports.uploadFotoPerfil = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ erro: 'Nenhum ficheiro enviado' });
+
+    const fotoPerfil = `/uploads/perfis/${req.file.filename}`;
+
+    // Apagar foto anterior se existir
+    const userAnterior = await User.findById(req.utilizador.id).select('fotoPerfil');
+    if (userAnterior?.fotoPerfil && userAnterior.fotoPerfil.startsWith('/uploads/perfis/')) {
+      const fotoAnteriorPath = path.join(__dirname, '..', 'public', userAnterior.fotoPerfil);
+      if (fs.existsSync(fotoAnteriorPath)) {
+        try {
+          fs.unlinkSync(fotoAnteriorPath);
+        }
+        catch (_) {}
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.utilizador.id,
+      { fotoPerfil: fotoPerfil },
+      { new: true }
+    ).select('-hash -salt');
+
+    if (!user) return res.status(404).json({ erro: 'Utilizador não encontrado' });
+    res.json({ mensagem: 'Foto de perfil atualizada com sucesso', fotoPerfil: fotoPerfil, user });
+  }
+  catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+};
+
+// ------------------------------------------------- Perfil Público ------------------------------------------------- //
+
+/*
+  GET /auth/utilizadores/:username — perfil público de um utilizador
+*/
+exports.perfilPublico = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).select('-hash -salt -email -dataUltimoAcesso');
+    if (!user) return res.status(404).json({ erro: 'Utilizador não encontrado' });
+    res.json(user);
+  }
+  catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+};
+
+// ------------------------------------------------- Admin ------------------------------------------------- //
 
 /*
   GET /auth/utilizadores — listar todos (só admin)

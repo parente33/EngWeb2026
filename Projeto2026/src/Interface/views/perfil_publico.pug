@@ -1,0 +1,55 @@
+extends layout
+
+block content
+  .w3-row-padding.w3-margin-top
+    .w3-col.m4.l3
+      .w3-card.w3-padding.w3-center.w3-white.w3-round-large
+        - const fotoPerfil = userPublico.fotoPerfil || '/images/perfil_default.png'
+        img(
+          src=fotoPerfil
+          alt='Foto de Perfil'
+          style='width:140px;height:140px;object-fit:cover;border:4px solid #555;border-radius:50%;margin-top:10px'
+          onerror="this.src='/images/perfil_default.png'"
+        )
+        h3(style='margin-top:12px;margin-bottom:4px') @#{userPublico.username}
+        if userPublico.nivel === 'administrador'
+          span.w3-tag.w3-dark-grey.w3-round.w3-small Administrador
+        else
+          span.w3-tag.w3-grey.w3-round.w3-small Consumidor
+
+    .w3-col.m8.l9
+      .w3-card.w3-white.w3-round-large
+        .w3-container.w3-dark-grey.w3-round-top.w3-padding
+          h4(style='margin:0') Perfil de @#{userPublico.username}
+
+        .w3-container.w3-padding
+          table.w3-table.w3-striped.w3-bordered
+            tbody
+              tr
+                td.w3-text-grey(style='width:40%')
+                  strong Filiação
+                td #{userPublico.filiacao}
+
+              tr
+                td.w3-text-grey
+                  strong Membro desde
+                td
+                  - const dataRegisto = new Date(userPublico.dataRegisto).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })
+                  | #{dataRegisto}
+
+              if contribuicoes !== null
+                tr
+                  td.w3-text-grey
+                    strong Registos criados
+                  td
+                    strong #{contribuicoes}
+
+      if userPublico.bio
+        .w3-card.w3-white.w3-round-large.w3-margin-top
+          .w3-container.w3-dark-grey.w3-round-top.w3-padding
+            h4(style='margin:0') Biografia
+          .w3-container.w3-padding
+            p #{userPublico.bio}
+
+  .w3-margin-top
+    a.w3-button.w3-grey(href='/inquiricoes') ← Ver registos

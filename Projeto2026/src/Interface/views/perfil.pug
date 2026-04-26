@@ -18,6 +18,13 @@ block content
         else
           span.w3-tag.w3-grey.w3-round.w3-small.w3-margin.top Consumidor
 
+        //- Formulário de upload de foto
+        form.w3-margin-top(action='/perfil/foto' method='POST' enctype='multipart/form-data')
+          label.w3-button.w3-light-grey.w3-round.w3-small(style='cursor:pointer;margin-top:10px')
+            | Alterar foto
+            input(type='file' name='foto' accept='image/jpeg,image/png,image/gif,image/webp' style='display:none' onchange='this.form.submit()')
+        p.w3-text-grey.w3-small(style='margin-top:6px;margin-bottom:0') JPG, PNG, GIF ou WebP · máx. 3 MB
+
     .w3-col.m8.l9
       if sucesso
         .w3-panel.w3-green.w3-round.w3-padding(style='margin-bottom:16px')

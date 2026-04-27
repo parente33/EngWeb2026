@@ -32,8 +32,6 @@ services:
       MONGO_URI: mongodb://mongo:27017/inquiricoes_db
       PORT: 3001
       JWT_SECRET: ${JWT_SECRET:-jwt_segredo_dev}
-    volumes:
-      - auth_uploads:/app/public/uploads/perfis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
       interval: 10s
@@ -55,6 +53,8 @@ services:
       PORT: 3002
       JWT_SECRET: ${JWT_SECRET:-jwt_segredo_dev}
       SESSION_SECRET: ${SESSION_SECRET:-sessao_segredo_dev}
+    volumes:
+      - auth_uploads:/app/public/uploads/perfis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3002/"]
       interval: 10s

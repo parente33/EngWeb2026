@@ -18,19 +18,20 @@ block content
         else
           span.w3-tag.w3-grey.w3-round.w3-small.w3-margin.top Consumidor
 
-        //- Formulário de upload de foto
-        form.w3-margin-top(action='/perfil/foto' method='POST' enctype='multipart/form-data')
-          label.w3-button.w3-light-grey.w3-round.w3-small(style='cursor:pointer;margin-top:10px')
-            | Alterar foto
-            input(type='file' name='foto' accept='image/jpeg,image/png,image/gif,image/webp' style='display:none' onchange='this.form.submit()')
-        p.w3-text-grey.w3-small(style='margin-top:6px;margin-bottom:0') JPG, PNG, GIF ou WebP · máx. 3 MB
+        //- Formulário de upload de foto (só o próprio)
+        if isDono
+          form.w3-margin-top(action='/perfil/foto' method='POST' enctype='multipart/form-data')
+            label.w3-button.w3-light-grey.w3-round.w3-small(style='cursor:pointer;margin-top:10px')
+              | Alterar foto
+              input(type='file' name='foto' accept='image/jpeg,image/png,image/gif,image/webp' style='display:none' onchange='this.form.submit()')
+          p.w3-text-grey.w3-small(style='margin-top:6px;margin-bottom:0') JPG, PNG, GIF ou WebP · máx. 3 MB
 
     .w3-col.m8.l9
-      if sucesso
+      if isDono && sucesso
         .w3-panel.w3-green.w3-round.w3-padding(style='margin-bottom:16px')
           p.w3-small(style='margin:0') #{sucesso}
 
-      if erro
+      if isDono && erro
         .w3-panel.w3-red.w3-round.w3-padding(style='margin-bottom:16px')
           p.w3-small(style='margin:0') #{erro}
 
@@ -38,7 +39,11 @@ block content
       //- Card com os detalhes
       .w3-card.w3-white.w3-round-large
         .w3-container.w3-dark-grey.w3-round-top.w3-padding
-          h4(style='margin:0') Informações de Perfil
+          h4(style='margin:0')
+            if isDono
+              | O Meu Perfil
+            else
+              | Perfil de @#{user.username}
 
         .w3-container.w3-padding
           table.w3-table.w3-striped.w3-bordered
@@ -77,7 +82,7 @@ block content
               if user.dataUltimoAcesso
                 tr
                   td.w3-text-grey
-                    strong Último acesso
+                    strong Última vez online em
                   td
                     - const dataAcesso = new Date(user.dataUltimoAcesso).toLocaleDateString('pt-PT', { hour12: false })
                     | #{dataAcesso}
@@ -94,17 +99,25 @@ block content
           h4(style='margin:0') Biografia
 
         .w3-container.w3-padding
-          form(action='/perfil' method='POST')
+          if isDono
+            //- Formulário editável (só o dono)
+            form(action='/perfil' method='POST')
+              if user.bio
+                p.w3-text-grey.w3-small(style='margin-bottom:8px') A tua biografia:
+              else
+                p.w3-text-grey.w3-small(style='margin-bottom:8px') Ainda não escreveste nada sobre ti. Apresenta-te!
+              textarea.w3-input.w3-border.w3-round(
+                name='bio'
+                rows='5'
+                maxlength='600'
+                placeholder='Escreve aqui um pouco sobre ti...'
+                style='resize:vertical;font-family:inherit;font-size:0.95em'
+              ) #{user.bio || ''}
+              p.w3-text-grey.w3-small.w3-right(style='margin:4px 0 12px') máx. 600 caracteres
+              button.w3-button.w3-dark-grey.w3-round(type='submit') Guardar biografia
+          else
+            //- Só leitura (outros utilizadores)
             if user.bio
-              p.w3-text-grey.w3-small(style='margin-botton:8px') A tua biografia:
+              p #{user.bio}
             else
-              p.w3-text-grey.w3-small(style='margin-botton:8px') Ainda não escreveste nada sobre ti. Apresenta-te!
-            textarea.w3-input.w3-border.w3-round(
-              name='bio'
-              rows='5'
-              maxlength='600'
-              placeholder='Escreve aqui um pouco sobre ti - quem és, a que te dedicas, o teu interesse neste arquivo...'
-              style='resize:vertical;font-family:inherit;font-size:0.95em'
-            ) #{user.bio || ''}
-            p.w3-text-grey.w3-small.w3-right(style='margin:4px 0 12px') máx. 600 caracteres
-            button.w3-button.w3-dark-grey.w3-round(type='submit') Guardar biografia
+              p.w3-text-grey.w3-small Este utilizador ainda não escreveu uma biografia.

@@ -358,41 +358,10 @@ router.post('/sugestoes/:id/apagar', async (req, res) => {
 
 // ------------------------------------------------- Perfil ------------------------------------------------- //
 
-router.get('/perfil', async (req, res, next) => {
+router.get('/perfil', (req, res) => {
   if (!req.session.utilizador) return res.redirect('/login');
-  const date = new Date().toLocaleDateString('pt-PT', { hour12: false });
-  try {
-    const perfilResp = await axios.get(`${AUTH_URL}/auth/perfil`, {
-      headers: { Authorization: `Bearer ${req.session.token}` }
-    });
-    const user = perfilResp.data;
-
-    // Buscar número de contribuições, apenas para admins
-    let contribuicoes = null;
-    if (user.nivel === 'administrador') {
-      try {
-        const contribResp = await axios.get(`${API_URL}/inquiricoes/contribuicoes/${user.username}`);
-        contribuicoes = contribResp.data.total;
-      }
-      catch (_) {
-        contribuicoes = 0;
-      }
-    }
-
-    const sucesso = req.session.perfilSucesso || null;
-    const erro    = req.session.perfilErro    || null;
-    delete req.session.perfilSucesso;
-    delete req.session.perfilErro;
-
-    req.session.save(() => {
-      res.render('perfil', { title: 'O Meu Perfil', date, user, contribuicoes, sucesso, erro });
-    });
-
-  }
-  catch (err) {
-    next(err);
-  }
-})
+  res.redirect('/utilizadores/' + req.session.utilizador.username);
+});
 
 router.post('/perfil', async (req, res, next) => {
   if (!req.session.utilizador) return res.redirect('/login');
@@ -415,40 +384,80 @@ router.post('/perfil/foto', uploadTemp.single('foto'), async (req, res, next) =>
   try {
     if (!req.file) {
       req.session.perfilErro = 'Nenhum ficheiro selecionado.';
-      return req.session.save(() => res.redirect('/perfil'));
+      return req.session.save(() => res.redirect('/utilizadores/' + req.session.utilizador.username));
     }
+
+    // Enviar o ficheiro para a Auth como multipart
     const form = new FormData();
     form.append('foto', req.file.buffer, {
       filename: req.file.originalname,
-      contentType: req.file.mimetype
+      contentType: req.file.mimetype,
     });
-    await axios.post(`${AUTH_URL}/auth/perfil/foto`, form, {
+
+    const patchResp = await axios.post(`${AUTH_URL}/auth/perfil/foto`, form, {
       headers: {
         ...form.getHeaders(),
-        Authorization: `Bearer ${req.session.token}`
-      }
+        Authorization: `Bearer ${req.session.token}`,
+      },
     });
+
+    const urlFoto = patchResp.data.fotoPerfil;
+    req.session.utilizador = { ...req.session.utilizador, fotoPerfil: urlFoto };
     req.session.perfilSucesso = 'Foto de perfil atualizada com sucesso!';
     req.session.perfilErro = null;
   } catch (err) {
     req.session.perfilSucesso = null;
     req.session.perfilErro = err.response?.data?.erro || `Erro ao atualizar a foto (${err.message})`;
   }
-  req.session.save(() => res.redirect('/perfil'));
+  req.session.save(() => res.redirect('/utilizadores/' + req.session.utilizador.username));
 });
 
-// Perfil público de outro utilizador
+// Perfil público de outro utilizador -- se for o próprio, mostra edição
 router.get('/utilizadores/:username', async (req, res, next) => {
   try {
     const date = new Date().toLocaleString('pt-PT', { hour12: false });
     const rUser = await axios.get(`${AUTH_URL}/auth/utilizadores/${encodeURIComponent(req.params.username)}`);
-    const userPublico = rUser.data;
+    const user = rUser.data;
+
+    const isDono = req.session.utilizador?.username === user.username;
+
+    // Se for o dono, buscar dados privados (email, último acesso)
+    if (isDono) {
+      try {
+        const perfilCompleto = await axios.get(`${AUTH_URL}/auth/perfil`, {
+          headers: { Authorization: `Bearer ${req.session.token}` }
+        });
+        Object.assign(user, perfilCompleto.data);
+        // Corrigir path antigo se necessário
+        // Isto foi meio necessário devido ter-mos mudado a implementação a meio, estava a dar alguns problemas
+        if (user.fotoPerfil && user.fotoPerfil.includes('/uploads/perfil/')) {
+          user.fotoPerfil = user.fotoPerfil.replace('/uploads/perfil/', '/uploads/perfis/');
+          axios.patch(`${AUTH_URL}/auth/perfil`, { fotoPerfil: user.fotoPerfil }, {
+            headers: { Authorization: `Bearer ${req.session.token}` }
+          }).catch(() => {});
+        }
+      } catch (_) {}
+    }
+
     let contribuicoes = null;
     try {
-      const rContrib = await axios.get(`${API_URL}/inquiricoes/utilizador/${encodeURIComponent(req.params.username)}/total`);
+      const rContrib = await axios.get(`${API_URL}/inquiricoes/utilizador/${encodeURIComponent(user.username)}/total`);
       contribuicoes = rContrib.data.total;
     } catch (_) {}
-    res.render('perfil_publico', { title: `Perfil de @${userPublico.username}`, date, userPublico, contribuicoes });
+
+    const sucesso = isDono ? (req.session.perfilSucesso || null) : null;
+    const erro    = isDono ? (req.session.perfilErro    || null) : null;
+    if (isDono) {
+      delete req.session.perfilSucesso;
+      delete req.session.perfilErro;
+    }
+
+    req.session.save(() => {
+      res.render('perfil', {
+        title: isDono ? 'O Meu Perfil' : `Perfil de @${user.username}`,
+        date, user, contribuicoes, sucesso, erro, isDono
+      });
+    });
   } catch (err) {
     if (err.response?.status === 404) {
       const date = new Date().toLocaleString('pt-PT', { hour12: false });

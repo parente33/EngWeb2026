@@ -2,6 +2,7 @@ const express    = require('express');
 const router     = express.Router();
 const controller = require('../controllers/auth');
 const { verifyToken, isAdmin } = require('../middleware/auth');
+const { uploadFoto, atualizarFoto } = require('../controllers/auth');
 
 // Rotas públicas (sem autenticação)
 router.post('/registo', controller.registo);
@@ -14,7 +15,7 @@ router.get('/verificar', controller.verificar);
 // Rotas protegidas (requerem token válido)
 router.get('/perfil', verifyToken, controller.perfil);
 router.patch('/perfil', verifyToken, controller.atualizarPerfil);
-router.post('/perfil/foto', verifyToken, controller.uploadMiddleware, controller.uploadFotoPerfil);
+router.post('/perfil/foto', verifyToken, uploadFoto, atualizarFoto);
 
 // Perfil público por username (sem autenticação)
 router.get('/utilizadores/:username', controller.perfilPublico);

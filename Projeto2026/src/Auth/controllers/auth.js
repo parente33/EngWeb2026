@@ -2,7 +2,7 @@ const passport = require('passport');
 const jwt      = require('jsonwebtoken');
 const path     = require('path');
 const fs       = require('fs');
-const multer   = require('multer');
+const multer = require('multer');
 const User     = require('../models/user');
 
 const JWT_SECRET  = process.env.JWT_SECRET  || 'jwt_segredo_dev';
@@ -10,29 +10,18 @@ const JWT_EXPIRES = process.env.JWT_EXPIRES || '8h';
 
 // ------------------------------------------------- Multer ------------------------------------------------- //
 
-const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
-try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (_) {}
-
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `${req.utilizador.id}${ext}`);
-  }
+  },
 });
-
-const fileFilter = (req, file, cb) => {
-  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-  if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true);
-  else cb(new Error('Tipo de ficheiro não permitido. Use JPG, PNG, GIF ou WebP.'));
-};
-
-// Exportado e usado nas rotas como middleware antes do handler
-exports.uploadMiddleware = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 }
-}).single('foto');
+exports.uploadFoto = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } }).single('foto');
 
 // ------------------------------------------------- JWT ------------------------------------------------- //
 
@@ -174,34 +163,17 @@ exports.atualizarPerfil = async (req, res) => {
   Header: Authorization: Bearer <token>
   Body: multipart/form-data com campo 'foto'
 */
-exports.uploadFotoPerfil = async (req, res) => {
+exports.atualizarFoto = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ erro: 'Nenhum ficheiro enviado' });
-
-    const fotoPerfil = `/uploads/perfis/${req.file.filename}`;
-
-    // Apagar foto anterior se existir
-    const userAnterior = await User.findById(req.utilizador.id).select('fotoPerfil');
-    if (userAnterior?.fotoPerfil && userAnterior.fotoPerfil.startsWith('/uploads/perfis/')) {
-      const fotoAnteriorPath = path.join(__dirname, '..', 'public', userAnterior.fotoPerfil);
-      if (fs.existsSync(fotoAnteriorPath)) {
-        try {
-          fs.unlinkSync(fotoAnteriorPath);
-        }
-        catch (_) {}
-      }
-    }
-
+    if (!req.file) return res.status(400).json({ erro: 'Nenhum ficheiro.' });
+    const urlFoto = `/uploads/perfis/${req.file.filename}`;
     const user = await User.findByIdAndUpdate(
       req.utilizador.id,
-      { fotoPerfil: fotoPerfil },
+      { fotoPerfil: urlFoto },
       { new: true }
-    ).select('-hash -salt');
-
-    if (!user) return res.status(404).json({ erro: 'Utilizador não encontrado' });
-    res.json({ mensagem: 'Foto de perfil atualizada com sucesso', fotoPerfil: fotoPerfil, user });
-  }
-  catch (err) {
+    );
+    res.json({ fotoPerfil: user.fotoPerfil });
+  } catch (err) {
     res.status(500).json({ erro: err.message });
   }
 };

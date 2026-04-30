@@ -1,18 +1,4 @@
-/* ============================================================
-   Inquirições de Génere — Custom Stylesheet
-   Palette:
-     --bg:        #f7f4ef  (parchment)
-     --surface:   #ffffff
-     --border:    #ddd8ce
-     --text:      #2c2a27
-     --muted:     #6b6560
-     --accent:    #7a1f2e  (deep burgundy)
-     --accent-lt: #f2e8ea
-     --danger:    #b91c1c
-     --success:   #166534
-   ============================================================ */
-
-/* ---------- Reset & Base ---------------------------------- */
+/* ---------------------------------- Reset & Base ---------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -40,7 +26,7 @@ p { margin-bottom: 0; }
 hr { border: none; border-top: 1px solid #ddd8ce; margin: 1.25rem 0; }
 img { max-width: 100%; height: auto; display: block; }
 
-/* ---------- Layout helpers -------------------------------- */
+/* ---------------------------------- Layout helpers ---------------------------------- */
 .container {
   width: 100%;
   max-width: 1020px;
@@ -67,7 +53,7 @@ img { max-width: 100%; height: auto; display: block; }
 .col-quarter    { flex: 1 1 calc(25% - 1rem); min-width: 160px; }
 .col-three-quarters { flex: 3 1 calc(75% - 0.625rem); min-width: 260px; }
 
-/* ---------- Navigation ------------------------------------ */
+/* ---------------------------------- Navigation ---------------------------------- */
 nav.site-nav {
   background: #2c2a27;
   color: #f7f4ef;
@@ -131,7 +117,7 @@ nav.site-nav .nav-right { margin-left: auto; display: flex; align-items: stretch
 }
 .nav-dropdown-menu a:last-child { border-bottom: none; }
 
-/* ---------- Cards / Panels -------------------------------- */
+/* ---------------------------------- Cards / Panels ---------------------------------- */
 .card {
   background: #ffffff;
   border: 1px solid #ddd8ce;
@@ -148,7 +134,7 @@ nav.site-nav .nav-right { margin-left: auto; display: flex; align-items: stretch
 }
 .card-header h4 { color: #f7f4ef; margin: 0; font-size: 0.95rem; font-weight: 600; }
 
-/* ---------- Alerts ---------------------------------------- */
+/* ---------------------------------- Alerts ---------------------------------- */
 .alert {
   padding: 0.75rem 1rem;
   border-radius: 4px;
@@ -161,7 +147,7 @@ nav.site-nav .nav-right { margin-left: auto; display: flex; align-items: stretch
 .alert-info    { background: #f7f4ef; color: #6b6560; border-left-color: #ddd8ce; }
 .alert-accent  { background: #f2e8ea; color: #7a1f2e; border-left-color: #7a1f2e; }
 
-/* ---------- Buttons --------------------------------------- */
+/* ---------------------------------- Buttons ---------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -212,7 +198,7 @@ nav.site-nav .nav-right { margin-left: auto; display: flex; align-items: stretch
 .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
 .btn-block { display: flex; width: 100%; }
 
-/* ---------- Forms ----------------------------------------- */
+/* ---------------------------------- Forms ---------------------------------- */
 .form-group { margin-bottom: 0.9rem; }
 
 label {
@@ -265,7 +251,7 @@ input[readonly] { background: #f7f4ef; cursor: not-allowed; color: #6b6560; }
   margin-top: 1.25rem;
 }
 
-/* ---------- Tables ---------------------------------------- */
+/* ---------------------------------- Tables ---------------------------------- */
 .table-wrap { overflow-x: auto; }
 
 table {
@@ -302,7 +288,7 @@ tbody tr:hover { background: #f2ede5; }
   white-space: nowrap;
 }
 
-/* ---------- Badges / Tags --------------------------------- */
+/* ---------------------------------- Badges / Tags ---------------------------------- */
 .badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;
@@ -315,7 +301,7 @@ tbody tr:hover { background: #f2ede5; }
 .badge-muted   { background: #e8e4dd; color: #6b6560; }
 .badge-accent  { background: #f2e8ea; color: #7a1f2e; border: 1px solid #c89098; }
 
-/* ---------- Pagination ------------------------------------ */
+/* ---------------------------------- Pagination ---------------------------------- */
 .pagination {
   display: flex;
   gap: 0.5rem;
@@ -323,7 +309,7 @@ tbody tr:hover { background: #f2ede5; }
   margin-top: 1.25rem;
 }
 
-/* ---------- Letter nav (indices) -------------------------- */
+/* ---------------------------------- Letter nav (indices) ---------------------------------- */
 .letter-nav {
   display: flex;
   flex-wrap: wrap;
@@ -347,7 +333,7 @@ tbody tr:hover { background: #f2ede5; }
 }
 .letter-nav a:hover { background: #2c2a27; color: #f7f4ef; border-color: #2c2a27; }
 
-/* ---------- Index list ------------------------------------ */
+/* ---------------------------------- Index list ---------------------------------- */
 .index-list { list-style: none; }
 .index-list li a {
   display: block;
@@ -360,7 +346,7 @@ tbody tr:hover { background: #f2ede5; }
 .index-list li a:hover { background: #f2e8ea; color: #7a1f2e; }
 .index-list li:last-child a { border-bottom: none; }
 
-/* ---------- Profile avatar -------------------------------- */
+/* ---------------------------------- Profile avatar ---------------------------------- */
 .avatar-wrap {
   text-align: center;
   padding: 1.5rem 1rem;
@@ -385,7 +371,7 @@ tbody tr:hover { background: #f2ede5; }
   color: #6b6560;
 }
 
-/* ---------- Post / comment cards -------------------------- */
+/* ---------------------------------- Post / comment cards ---------------------------------- */
 .post-card {
   background: #fff;
   border: 1px solid #ddd8ce;
@@ -406,7 +392,7 @@ tbody tr:hover { background: #f2ede5; }
 .comment-meta { font-size: 0.78rem; color: #6b6560; margin-bottom: 0.25rem; }
 .comment-body { font-size: 0.9rem; }
 
-/* ---------- Footer ---------------------------------------- */
+/* ---------------------------------- Footer ---------------------------------- */
 footer.site-footer {
   background: #2c2a27;
   color: #a09890;
@@ -416,7 +402,7 @@ footer.site-footer {
   margin-top: auto;
 }
 
-/* ---------- Auth card ------------------------------------- */
+/* ---------------------------------- Auth card ---------------------------------- */
 .auth-card {
   max-width: 420px;
   margin: 2.5rem auto;
@@ -427,7 +413,7 @@ footer.site-footer {
 }
 .auth-card h2 { margin-bottom: 1.5rem; }
 
-/* ---------- Misc helpers ---------------------------------- */
+/* ---------------------------------- Misc helpers ---------------------------------- */
 .muted  { color: #6b6560; }
 .small  { font-size: 0.82rem; }
 .mt-1   { margin-top: 0.5rem; }
@@ -450,7 +436,7 @@ footer.site-footer {
   margin-bottom: 1rem;
 }
 
-/* ---------- Relation form highlight ----------------------- */
+/* ---------------------------------- Relation form highlight ---------------------------------- */
 .rel-form-box {
   background: #faf8f5;
   border: 1px solid #ddd8ce;

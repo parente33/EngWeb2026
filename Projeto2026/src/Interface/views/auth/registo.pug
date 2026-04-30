@@ -1,37 +1,37 @@
 extends ../layout
 
 block content
-  .w3-card.w3-padding(style='max-width:400px;margin:auto')
-    h2 Registo
+  .auth-card
+    h2 Criar Conta
     if erro
-      .w3-panel.w3-red
-        p #{erro}
+      .alert.alert-error.mb-2 #{erro}
     form(action='/registo' method='POST')
-      .w3-margin-bottom
+      .form-group
         label Username
-        input.w3-input.w3-border(type='text' name='username' required autofocus)
-      .w3-margin-bottom
+        input(type='text' name='username' required autofocus)
+      .form-group
         label Password
-        input.w3-input.w3-border(type='password' name='password' required)
-      .w3-margin-bottom
+        input(type='password' name='password' required)
+      .form-group
         label Email
-        input.w3-input.w3-border(type='email' name='email' required)
+        input(type='email' name='email' required)
+      .form-group
         label Filiação
-        select.w3-select.w3-border(name='filiacao' required)
+        select(name='filiacao' required)
           option(value='') -- Seleciona --
           option(value='estudante') Estudante
           option(value='docente') Docente
           option(value='investigador') Investigador
           option(value='outro') Outro
-      .w3-margin-bottom
+      .form-group
         label Idade
-        input.w3-input.w3-border(type='number' name='idade' min='1' required)
-      .w3-margin-bottom
+        input(type='number' name='idade' min='1' required)
+      .form-group
         label Nível
-        select.w3-select.w3-border(name='nivel' required)
+        select(name='nivel' required)
           option(value='') -- Seleciona --
           option(value='consumidor') Consumidor
           option(value='administrador') Administrador
-      button.w3-button.w3-dark-grey.w3-block(type='submit') Registar
-    .w3-margin-top
-      p.w3-text-grey Já tens conta? #[a(href='/login') Faz login]
+      button.btn.btn-primary.btn-block(type='submit') Registar
+    .mt-2
+      p.muted.small Já tens conta? #[a(href='/login') Faz login]

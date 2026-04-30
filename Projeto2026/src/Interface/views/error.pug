@@ -1,6 +1,8 @@
 extends layout
 
 block content
-  .w3-panel.w3-red
-    h2 Erro #{error.status || 500}
-    p #{message}
+  .card(style='max-width:480px;margin:2rem auto')
+    .card-header
+      h4 Erro #{error.status || 500}
+    .alert.alert-error(style='margin:0;border-radius:0 0 5px 5px;border-left:none') #{message}
+    

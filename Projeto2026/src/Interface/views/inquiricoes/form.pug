@@ -1,151 +1,145 @@
 extends ../layout
 
 block content
-  a.w3-button.w3-grey.w3-margin-bottom(href='/inquiricoes') ← Voltar
+  a.btn.btn-ghost.mb-2(href='/inquiricoes') &larr; Voltar
 
   if erro && erro.length
-    .w3-panel.w3-red.w3-padding
-      p #{erro}
+    .alert.alert-error.mb-2 #{erro}
 
-  .w3-card.w3-padding
-    h2 #{inquiricao && inquiricao.proc_numero ? 'Editar Registo' : 'Novo Registo'}
+  .card
+    h2.mb-2 #{inquiricao && inquiricao.proc_numero ? 'Editar Registo' : 'Novo Registo'}
 
     - const action = inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}/editar` : '/inquiricoes/novo'
     form(action=action method='POST')
 
-      h4 Identificação
-      .w3-row-padding
-        .w3-col.m6.w3-margin-bottom
+      h4.section-title Identificação
+      .form-row
+        .form-group
           label Número de Processo
-          input.w3-input.w3-border(type='number' name='proc_numero' value=inquiricao && inquiricao.proc_numero ? inquiricao.proc_numero : '' required placeholder='Ex: 1234')
-        .w3-col.m6.w3-margin-bottom
+          input(type='number' name='proc_numero' value=inquiricao && inquiricao.proc_numero ? inquiricao.proc_numero : '' required placeholder='Ex: 1234')
+        .form-group
           label Título
-          input.w3-input.w3-border(type='text' name='titulo' value=inquiricao && inquiricao.titulo ? inquiricao.titulo : '' placeholder='Título do registo')
+          input(type='text' name='titulo' value=inquiricao && inquiricao.titulo ? inquiricao.titulo : '' placeholder='Título do registo')
 
-      .w3-row-padding
-        .w3-col.m6.w3-margin-bottom
+      .form-row
+        .form-group
           label Repositório
-          input.w3-input.w3-border(type='text' name='repositorio' value=inquiricao && inquiricao.repositorio ? inquiricao.repositorio : '' placeholder='Ex: ADB')
-        .w3-col.m6.w3-margin-bottom
+          input(type='text' name='repositorio' value=inquiricao && inquiricao.repositorio ? inquiricao.repositorio : '' placeholder='Ex: ADB')
+        .form-group
           label Cota Completa
-          input.w3-input.w3-border(type='text' name='cota_completa' value=inquiricao && inquiricao.cota_completa ? inquiricao.cota_completa : '' placeholder='Ex: PT/UM/ADB/...')
+          input(type='text' name='cota_completa' value=inquiricao && inquiricao.cota_completa ? inquiricao.cota_completa : '' placeholder='Ex: PT/UM/ADB/...')
 
-      .w3-row-padding
-        .w3-col.m4.w3-margin-bottom
+      .form-row
+        .form-group
           label Caixa
-          input.w3-input.w3-border(type='text' name='caixa' value=inquiricao && inquiricao.caixa ? inquiricao.caixa : '')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='caixa' value=inquiricao && inquiricao.caixa ? inquiricao.caixa : '')
+        .form-group
           label Data Inicial
-          input.w3-input.w3-border(type='text' name='data_inicial' value=inquiricao && inquiricao.data_inicial ? inquiricao.data_inicial : '' placeholder='Ex: 1800-01-01')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='data_inicial' value=inquiricao && inquiricao.data_inicial ? inquiricao.data_inicial : '' placeholder='Ex: 1800-01-01')
+        .form-group
           label Data Final
-          input.w3-input.w3-border(type='text' name='data_final' value=inquiricao && inquiricao.data_final ? inquiricao.data_final : '' placeholder='Ex: 1800-12-31')
+          input(type='text' name='data_final' value=inquiricao && inquiricao.data_final ? inquiricao.data_final : '' placeholder='Ex: 1800-12-31')
 
-      h4 Filiação
-      .w3-row-padding
-        .w3-col.m4.w3-margin-bottom
+      h4.section-title.mt-2 Filiação
+      .form-row
+        .form-group
           label Requerente
-          input.w3-input.w3-border(type='text' name='requerente' value=inquiricao && inquiricao.requerente ? inquiricao.requerente : '')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='requerente' value=inquiricao && inquiricao.requerente ? inquiricao.requerente : '')
+        .form-group
           label Pai
-          input.w3-input.w3-border(type='text' name='pai' value=inquiricao && inquiricao.pai ? inquiricao.pai : '')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='pai' value=inquiricao && inquiricao.pai ? inquiricao.pai : '')
+        .form-group
           label Mãe
-          input.w3-input.w3-border(type='text' name='mae' value=inquiricao && inquiricao.mae ? inquiricao.mae : '')
+          input(type='text' name='mae' value=inquiricao && inquiricao.mae ? inquiricao.mae : '')
 
-      h4 Localização
-      .w3-row-padding
-        .w3-col.m4.w3-margin-bottom
+      h4.section-title.mt-2 Localização
+      .form-row
+        .form-group
           label Freguesia
-          input.w3-input.w3-border(type='text' name='freguesia' value=inquiricao && inquiricao.freguesia ? inquiricao.freguesia : '')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='freguesia' value=inquiricao && inquiricao.freguesia ? inquiricao.freguesia : '')
+        .form-group
           label Concelho
-          input.w3-input.w3-border(type='text' name='concelho' value=inquiricao && inquiricao.concelho ? inquiricao.concelho : '')
-        .w3-col.m4.w3-margin-bottom
+          input(type='text' name='concelho' value=inquiricao && inquiricao.concelho ? inquiricao.concelho : '')
+        .form-group
           label Distrito
-          input.w3-input.w3-border(type='text' name='distrito' value=inquiricao && inquiricao.distrito ? inquiricao.distrito : '')
+          input(type='text' name='distrito' value=inquiricao && inquiricao.distrito ? inquiricao.distrito : '')
 
-      h4 Conteúdo
-      .w3-margin-bottom
+      h4.section-title.mt-2 Conteúdo
+      .form-group
         label Descrição / Conteúdo
-        textarea.w3-input.w3-border(name='conteudo' rows='4' placeholder='Descrição do conteúdo do documento...') #{inquiricao && inquiricao.conteudo ? inquiricao.conteudo : ''}
+        textarea(name='conteudo' rows='4' placeholder='Descrição do conteúdo do documento...') #{inquiricao && inquiricao.conteudo ? inquiricao.conteudo : ''}
 
-      .w3-row-padding
-        .w3-col.m6.w3-margin-bottom
+      .form-row
+        .form-group
           label Notas Físicas
-          input.w3-input.w3-border(type='text' name='notas_fisicas' value=inquiricao && inquiricao.notas_fisicas ? inquiricao.notas_fisicas : '')
-        .w3-col.m6.w3-margin-bottom
+          input(type='text' name='notas_fisicas' value=inquiricao && inquiricao.notas_fisicas ? inquiricao.notas_fisicas : '')
+        .form-group
           label Nota
-          input.w3-input.w3-border(type='text' name='nota' value=inquiricao && inquiricao.nota ? inquiricao.nota : '')
+          input(type='text' name='nota' value=inquiricao && inquiricao.nota ? inquiricao.nota : '')
 
-      .w3-margin-top
-        button.w3-button.w3-dark-grey(type='submit') #{inquiricao && inquiricao.proc_numero ? 'Guardar Alterações' : 'Criar Registo'}
-        a.w3-button.w3-grey.w3-margin-left(href=inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}` : '/inquiricoes') Cancelar
+      .form-actions
+        button.btn.btn-primary(type='submit') #{inquiricao && inquiricao.proc_numero ? 'Guardar Alterações' : 'Criar Registo'}
+        a.btn.btn-ghost(href=inquiricao && inquiricao.proc_numero ? `/inquiricoes/${inquiricao.proc_numero}` : '/inquiricoes') Cancelar
 
   //- Relações genealógicas — fora do form, geridas por AJAX
   if inquiricao && inquiricao.proc_numero
-    .w3-card.w3-padding.w3-margin-top
-      h4 Relações Genealógicas
+    .card.mt-2
+      h4.section-title Relações Genealógicas
 
       //- Tabela com as relações já existentes
       #tabela-relacoes
         if inquiricao.relacoes && inquiricao.relacoes.length
-          table.w3-table.w3-bordered.w3-margin-bottom(style='table-layout:fixed')
-            thead
-              tr.w3-dark-grey
-                th(style='width:22%') Requerente
-                th(style='width:22%') Relacionado
-                th(style='width:20%') Grau do requerente
-                th(style='width:16%')
-            tbody
-              each rel in inquiricao.relacoes
-                tr(id=`rel-${rel.proc_numero}`)
-                  td: strong #{inquiricao.requerente || '(este registo)'}
-                  td: a(href=`/inquiricoes/${rel.proc_numero}`) #{rel.nome || rel.proc_numero}
-                  td #{rel.relacao_requerente || rel.relacao || '—'}
-                  td
-                    button.w3-button.w3-red.w3-small(
-                      type='button'
-                      onclick=`removerRelacao(${inquiricao.proc_numero}, ${rel.proc_numero}, this)`
-                    ) Remover
+          .table-wrap
+            table(style='table-layout:fixed')
+              thead
+                tr
+                  th(style='width:22%') Requerente
+                  th(style='width:22%') Relacionado
+                  th(style='width:20%') Grau do requerente
+                  th(style='width:16%')
+              tbody
+                each rel in inquiricao.relacoes
+                  tr(id=`rel-${rel.proc_numero}`)
+                    td: strong #{inquiricao.requerente || '(este registo)'}
+                    td: a(href=`/inquiricoes/${rel.proc_numero}`) #{rel.nome || rel.proc_numero}
+                    td #{rel.relacao_requerente || rel.relacao || '—'}
+                    td
+                      button.btn.btn-danger.btn-sm(
+                        type='button'
+                        onclick=`removerRelacao(${inquiricao.proc_numero}, ${rel.proc_numero}, this)`
+                      ) Remover
         else
-          p.w3-text-grey#sem-relacoes Ainda não há relações registadas.
+          p.muted#sem-relacoes Ainda não há relações registadas.
 
       //- Formulário para adicionar nova relação
-      .w3-card.w3-pale-blue.w3-padding.w3-margin-top(style='border-left:4px solid #2196F3')
-        h5.w3-margin-top(style='margin-top:0') Adicionar nova relação
+      .rel-form-box
+        h5 Adicionar nova relação
 
-        .w3-row-padding
-          //- Coluna 1: requerente (só leitura)
-          .w3-col.m3.w3-margin-bottom
+        .form-row
+          .form-group
             label Requerente
-            input.w3-input.w3-border.w3-light-grey(
+            input(
               type='text'
               value=inquiricao.requerente || `Proc. ${inquiricao.proc_numero}`
               readonly
-              style='cursor:not-allowed'
             )
-
-          //- Coluna 2: número de processo do relacionado
-          .w3-col.m3.w3-margin-bottom
+          .form-group
             label Nº Processo do Relacionado
-            input#rel-proc-numero.w3-input.w3-border(
+            input#rel-proc-numero(
               type='number'
               placeholder='Ex: 1234'
               min='1'
             )
-
-          //- Coluna 3: grau do requerente
-          .w3-col.m3.w3-margin-bottom
+          .form-group
             label Grau do requerente
-            input#rel-grau-requerente.w3-input.w3-border(
+            input#rel-grau-requerente(
               type='text'
               placeholder='Ex: sobrinho, neto...'
             )
 
-        .w3-margin-top
-          button#btn-adicionar-relacao.w3-button.w3-blue(type='button') + Adicionar relação
-          span#msg-relacao.w3-margin-left(style='font-size:.9em')
+        .form-actions
+          button#btn-adicionar-relacao.btn.btn-primary(type='button') + Adicionar relação
+          span#msg-relacao
 
   if inquiricao && inquiricao.proc_numero
     script.
@@ -174,10 +168,8 @@ block content
             return;
           }
           const dados = await r.json();
-          // A API devolve os dois documentos actualizados; usamos o nome do docB
           const nomeRelacionado = dados.relacoes?.find(r => r.proc_numero === proc_b)?.nome || String(proc_b);
           adicionarLinhaTabela(proc_b, nomeRelacionado, rel_req);
-          // Limpa formulário
           document.getElementById('rel-proc-numero').value = '';
           document.getElementById('rel-grau-requerente').value = '';
           mostrarMsg('Relação adicionada com sucesso!', 'green');
@@ -198,13 +190,12 @@ block content
           }
           const linha = document.getElementById(`rel-${proc_b}`);
           if (linha) linha.remove();
-          // Se a tabela ficou vazia, mostra a mensagem
           const tbody = document.querySelector('#tabela-relacoes tbody');
           if (tbody && !tbody.querySelector('tr')) {
             const semRel = document.getElementById('sem-relacoes');
             if (!semRel) {
               const p = document.createElement('p');
-              p.id = 'sem-relacoes'; p.className = 'w3-text-grey';
+              p.id = 'sem-relacoes'; p.className = 'muted';
               p.textContent = 'Ainda não há relações registadas.';
               document.getElementById('tabela-relacoes').appendChild(p);
             }
@@ -215,23 +206,23 @@ block content
       }
 
       // ---- Helpers ----
-      function adicionarLinhaTabela(proc_b, nome, rel_req, rel_rel) {
+      function adicionarLinhaTabela(proc_b, nome, rel_req) {
         let tabela = document.querySelector('#tabela-relacoes table');
-        // Se não havia tabela ainda, cria-a
         if (!tabela) {
           const div = document.getElementById('tabela-relacoes');
           const semRel = document.getElementById('sem-relacoes');
           if (semRel) semRel.remove();
           div.innerHTML = `
-            <table class="w3-table w3-bordered w3-margin-bottom" style="table-layout:fixed">
-              <thead><tr class="w3-dark-grey">
+            <div class="table-wrap">
+            <table style="table-layout:fixed">
+              <thead><tr>
                 <th style="width:25%">Requerente</th>
-                <th style="width:25%">Requerente</th>
+                <th style="width:25%">Relacionado</th>
                 <th style="width:25%">Grau do requerente</th>
                 <th style="width:20%"></th>
               </tr></thead>
               <tbody></tbody>
-            </table>`;
+            </table></div>`;
           tabela = div.querySelector('table');
         }
         const tr = document.createElement('tr');
@@ -240,7 +231,7 @@ block content
           <td><strong>${REQUERENTE || '(este registo)'}</strong></td>
           <td><a href="/inquiricoes/${proc_b}">${nome || proc_b}</a></td>
           <td>${rel_req}</td>
-          <td><button class="w3-button w3-red w3-small" type="button"
+          <td><button class="btn btn-danger btn-sm" type="button"
               onclick="removerRelacao(${PROC_NUMERO}, ${proc_b}, this)">Remover</button></td>`;
         tabela.querySelector('tbody').appendChild(tr);
       }
@@ -248,7 +239,7 @@ block content
       function mostrarMsg(texto, cor) {
         const el = document.getElementById('msg-relacao');
         el.textContent = texto;
-        el.style.color = cor === 'red' ? '#c00' : '#2a7a2a';
+        el.style.color = cor === 'red' ? '#b91c1c' : '#166534';
         clearTimeout(el._t);
         el._t = setTimeout(() => { el.textContent = ''; }, 4000);
       }

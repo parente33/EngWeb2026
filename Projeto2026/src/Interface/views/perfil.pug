@@ -1,123 +1,100 @@
 extends layout
 
 block content
-  .w3-row-padding.w3-margin-top
-    .w3-col.m4.l3
-      //- Card com a foto de perfil
-      .w3-card.w3-padding.w3-center.w3-white.w3-round-large
-        - const fotoPerfil = user.fotoPerfil || '/images/perfil_default.png'
-        img.w3-cicle.w3-margin-top(
-          src=fotoPerfil
-          alt='Foto de Perfil'
-          style='width:140px;height:140px;object-fit:cover;border:4px solid #555'
-          onerror="this.src='/images/perfil_default.png'"
-        )
-        h3.w3-margin-bottom(style='margin-top:12px;margin-bottom:4px') @#{user.username}
-        if user.nivel === 'administrador'
-          span.w3-tag.w3-dark-grey.w3-round.w3-small.w3-margin-top Administrador
-        else
-          span.w3-tag.w3-grey.w3-round.w3-small.w3-margin.top Consumidor
+  .row
+    .col-quarter
+      .card(style='padding:0')
+        .avatar-wrap
+          - const fotoPerfil = user.fotoPerfil || '/images/perfil_default.png'
+          img(
+            src=fotoPerfil
+            alt='Foto de Perfil'
+            onerror="this.src='/images/perfil_default.png'"
+          )
+          p.avatar-username @#{user.username}
+          if user.nivel === 'administrador'
+            span.badge.badge-dark.mt-1 Administrador
+          else
+            span.badge.badge-muted.mt-1 Consumidor
 
-        //- Formulário de upload de foto (só o próprio)
-        if isDono
-          form.w3-margin-top(action='/perfil/foto' method='POST' enctype='multipart/form-data')
-            label.w3-button.w3-light-grey.w3-round.w3-small(style='cursor:pointer;margin-top:10px')
-              | Alterar foto
-              input(type='file' name='foto' accept='image/jpeg,image/png,image/gif,image/webp' style='display:none' onchange='this.form.submit()')
-          p.w3-text-grey.w3-small(style='margin-top:6px;margin-bottom:0') JPG, PNG, GIF ou WebP · máx. 3 MB
+          //- Formulário de upload de foto (só o próprio)
+          if isDono
+            .avatar-upload
+              form(action='/perfil/foto' method='POST' enctype='multipart/form-data')
+                label
+                  | Alterar foto
+                  input(type='file' name='foto' accept='image/jpeg,image/png,image/gif,image/webp' style='display:none' onchange='this.form.submit()')
+              p.muted.small.mt-1 JPG, PNG, GIF ou WebP · máx. 3 MB
 
-    .w3-col.m8.l9
+    .col-three-quarters
       if isDono && sucesso
-        .w3-panel.w3-green.w3-round.w3-padding(style='margin-bottom:16px')
-          p.w3-small(style='margin:0') #{sucesso}
-
+        .alert.alert-success.mb-2 #{sucesso}
       if isDono && erro
-        .w3-panel.w3-red.w3-round.w3-padding(style='margin-bottom:16px')
-          p.w3-small(style='margin:0') #{erro}
+        .alert.alert-error.mb-2 #{erro}
 
-    .w3-col.m8.l9
-      //- Card com os detalhes
-      .w3-card.w3-white.w3-round-large
-        .w3-container.w3-dark-grey.w3-round-top.w3-padding
-          h4(style='margin:0')
+      .card.mb-2
+        .card-header
+          h4
             if isDono
               | O Meu Perfil
             else
               | Perfil de @#{user.username}
-
-        .w3-container.w3-padding
-          table.w3-table.w3-striped.w3-bordered
+        .table-wrap
+          table.table-kv
             tbody
               tr
-                td.w3-text-grey(style='width:40%')
-                  strong Idade
+                td Idade
                 td #{user.idade} anos
-
               tr
-                td.w3-text-grey
-                  strong Filiação
+                td Filiação
                 td #{user.filiacao}
-
               tr
-                td.w3-text-grey
-                  strong Email
+                td Email
                 td #{user.email}
-
               tr
-                td.w3-text-grey
-                  strong Nível de acesso
+                td Nível de acesso
                 td
                   if user.nivel === 'administrador'
-                    span.w3-tag.w3-dark-grey.w3-round Administrador
+                    span.badge.badge-dark Administrador
                   else
-                    span.w3-tag.w3-light-grey.w3-round Consumidor
-
+                    span.badge.badge-muted Consumidor
               tr
-                td.w3-text-grey
-                  strong Utilizador desde
+                td Utilizador desde
                 td
                   - const dataRegisto = new Date(user.dataRegisto).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })
                   | #{dataRegisto}
-
               if user.dataUltimoAcesso
                 tr
-                  td.w3-text-grey
-                    strong Última vez online em
+                  td Última vez online em
                   td
                     - const dataAcesso = new Date(user.dataUltimoAcesso).toLocaleDateString('pt-PT', { hour12: false })
                     | #{dataAcesso}
-
               if user.nivel === 'administrador' && contribuicoes !== null
                 tr
-                  td.w3-text-grey
-                    strong Nº de contribuições
-                  td
-                    strong.w3-text-dark-grey #{contribuicoes}  registo(s) criado(s)
+                  td Nº de contribuições
+                  td: strong #{contribuicoes} registo(s) criado(s)
 
-      .w3-card.w3-white-round-large.w3-margin-top
-        .w3-container.w3-dark-grey.w3-round-top.w3-padding
-          h4(style='margin:0') Biografia
-
-        .w3-container.w3-padding
-          if isDono
-            //- Formulário editável (só o dono)
-            form(action='/perfil' method='POST')
+      .card
+        .card-header
+          h4 Biografia
+        if isDono
+          form(action='/perfil' method='POST')
+            .form-group
               if user.bio
-                p.w3-text-grey.w3-small(style='margin-bottom:8px') A tua biografia:
+                p.muted.small.mb-1 A tua biografia:
               else
-                p.w3-text-grey.w3-small(style='margin-bottom:8px') Ainda não escreveste nada sobre ti. Apresenta-te!
-              textarea.w3-input.w3-border.w3-round(
+                p.muted.small.mb-1 Ainda não escreveste nada sobre ti. Apresenta-te!
+              textarea(
                 name='bio'
                 rows='5'
                 maxlength='600'
                 placeholder='Escreve aqui um pouco sobre ti...'
-                style='resize:vertical;font-family:inherit;font-size:0.95em'
               ) #{user.bio || ''}
-              p.w3-text-grey.w3-small.w3-right(style='margin:4px 0 12px') máx. 600 caracteres
-              button.w3-button.w3-dark-grey.w3-round(type='submit') Guardar biografia
+            p.muted.small.text-right máx. 600 caracteres
+            .form-actions
+              button.btn.btn-primary(type='submit') Guardar biografia
+        else
+          if user.bio
+            p #{user.bio}
           else
-            //- Só leitura (outros utilizadores)
-            if user.bio
-              p #{user.bio}
-            else
-              p.w3-text-grey.w3-small Este utilizador ainda não escreveu uma biografia.
+            p.muted Este utilizador ainda não escreveu uma biografia.

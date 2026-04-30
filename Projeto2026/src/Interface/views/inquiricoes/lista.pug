@@ -1,59 +1,59 @@
 extends ../layout
 
 block content
-  .w3-bar.w3-margin-bottom
-    h2.w3-bar-item(style='margin:0;padding:0') Registos
-    if utilizador
-      a.w3-button.w3-dark-grey.w3-bar-item.w3-right(href='/inquiricoes/novo') + Novo Registo
+  .flex-between.mb-2
+    h2 Registos
+    if utilizador && utilizador.nivel === 'administrador'
+      a.btn.btn-accent(href='/inquiricoes/novo') + Novo Registo
 
   //- Filtros
-  .w3-card.w3-padding.w3-margin-bottom
+  .card.mb-2
     form(action='/inquiricoes' method='GET')
-      .w3-row-padding
-        .w3-col.m3
+      .form-row
+        .form-group
           label Nome
-          input.w3-input.w3-border(type='text' name='requerente' value=query.requerente || '')
-        .w3-col.m3
+          input(type='text' name='requerente' value=query.requerente || '')
+        .form-group
           label Concelho
-          input.w3-input.w3-border(type='text' name='concelho' value=query.concelho || '')
-        .w3-col.m3
+          input(type='text' name='concelho' value=query.concelho || '')
+        .form-group
           label Distrito
-          input.w3-input.w3-border(type='text' name='distrito' value=query.distrito || '')
-        .w3-col.m3
+          input(type='text' name='distrito' value=query.distrito || '')
+        .form-group
           label Ano
-          input.w3-input.w3-border(type='text' name='ano' value=query.ano || '')
-      .w3-row-padding.w3-margin-top
-        .w3-col.m6
-          label Pesquisa livre
-          input.w3-input.w3-border(type='text' name='texto' value=query.texto || '')
-        .w3-col.m6.w3-margin-top
-          button.w3-button.w3-dark-grey(type='submit') Pesquisar
-          a.w3-button.w3-grey.w3-margin-left(href='/inquiricoes') Limpar
+          input(type='text' name='ano' value=query.ano || '')
+      .form-group.mt-1
+        label Pesquisa livre
+        input(type='text' name='texto' value=query.texto || '')
+      .form-actions
+        button.btn.btn-primary(type='submit') Pesquisar
+        a.btn.btn-ghost(href='/inquiricoes') Limpar
 
-  p #{total} resultado(s) — página #{pagina}
+  p.muted.small.mb-1 #{total} resultado(s) — página #{pagina}
 
-  table.w3-table.w3-striped.w3-bordered
-    thead
-      tr.w3-dark-grey
-        th Processo
-        th Requerente
-        th Pai
-        th Mãe
-        th Data
-        th Concelho
-    tbody
-      each inq in inquiricoes
+  .table-wrap
+    table
+      thead
         tr
-          td: a(href=`/inquiricoes/${inq.proc_numero}`) #{inq.proc_numero}
-          td #{inq.requerente || '—'}
-          td #{inq.pai || '—'}
-          td #{inq.mae || '—'}
-          td #{inq.data_inicial || '—'}
-          td #{inq.concelho || '—'}
+          th Processo
+          th Requerente
+          th Pai
+          th Mãe
+          th Data
+          th Concelho
+      tbody
+        each inq in inquiricoes
+          tr
+            td: a(href=`/inquiricoes/${inq.proc_numero}`) #{inq.proc_numero}
+            td #{inq.requerente || '—'}
+            td #{inq.pai || '—'}
+            td #{inq.mae || '—'}
+            td #{inq.data_inicial || '—'}
+            td #{inq.concelho || '—'}
 
   //- Paginação
-  .w3-bar.w3-margin-top
+  .pagination
     if pagina > 1
-      a.w3-button.w3-dark-grey(href=`/inquiricoes?${new URLSearchParams(Object.assign({}, query, {pagina: pagina - 1}))}`) ← Anterior
+      a.btn.btn-ghost(href=`/inquiricoes?${new URLSearchParams(Object.assign({}, query, {pagina: pagina - 1}))}`) &larr; Anterior
     if pagina * limite < total
-      a.w3-button.w3-dark-grey.w3-margin-left(href=`/inquiricoes?${new URLSearchParams(Object.assign({}, query, {pagina: pagina + 1}))}`) Seguinte →
+      a.btn.btn-ghost(href=`/inquiricoes?${new URLSearchParams(Object.assign({}, query, {pagina: pagina + 1}))}`) Seguinte &rarr;

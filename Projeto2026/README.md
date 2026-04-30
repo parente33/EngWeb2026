@@ -100,9 +100,6 @@ TODO
 - UnitTitleType
 - Username (mesmo que o campo "Creator")
 
-# TODO (Para além de melhorar a interface):
-
-
 # Comandos
 
 - docker compose up -d --build

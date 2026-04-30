@@ -4,35 +4,39 @@ html(lang='pt')
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     title #{title} | Inquirições de Génere
-    link(rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css')
-    link(rel='stylesheet' href='/stylesheets/w3.css')
+    link(rel='preconnect' href='https://fonts.googleapis.com')
+    link(rel='preconnect' href='https://fonts.gstatic.com' crossorigin)
+    link(rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap')
+    link(rel='stylesheet' href='/stylesheets/style.css')
     link(rel='icon' href='/images/padre.png')
 
   body
     //- Barra de navegação
-    nav.w3-bar.w3-dark-grey
-      a.w3-bar-item.w3-button.w3-large(href='/') 📜 Inquirições de Génere
-      a.w3-bar-item.w3-button(href='/inquiricoes') Registos
-      .w3-dropdown-hover
-        button.w3-button Índices ▾
-        .w3-dropdown-content.w3-bar-block.w3-card
-          a.w3-bar-item.w3-button(href='/indice/nomes') Antroponímico
-          a.w3-bar-item.w3-button(href='/indice/lugares') Toponímico
-          a.w3-bar-item.w3-button(href='/indice/datas') Cronológico
+    nav.site-nav
+      a.brand(href='/') Inquirições de Génere
+      a(href='/inquiricoes') Registos
+      .nav-dropdown
+        button.dropdown-toggle Índices &#9662;
+        .nav-dropdown-menu
+          a(href='/indice/nomes') Antroponímico
+          a(href='/indice/lugares') Toponímico
+          a(href='/indice/datas') Cronológico
       if utilizador
-        a.w3-bar-item.w3-button(href='/sugestoes') Caixa de Sugestões
+        a(href='/sugestoes') Sugestões
         if utilizador.nivel === 'administrador'
-          a.w3-bar-item.w3-button(href='/inquiricoes/novo') + Novo Registo
-        a.w3-bar-item.w3-button.w3-right(href='/logout') Sair (#{utilizador.username})
-        a.w3-bar-item.w3-button.w3-right(href='/perfil') O Meu Perfil
-      else
-        a.w3-bar-item.w3-button.w3-right(href='/registo') Registar
-        a.w3-bar-item.w3-button.w3-right(href='/login') Login
+          a(href='/inquiricoes/novo') + Novo Registo
+      .nav-right
+        if utilizador
+          a(href='/perfil') @#{utilizador.username}
+          a(href='/logout') Sair
+        else
+          a(href='/login') Login
+          a(href='/registo') Registar
 
     //- Conteúdo principal
-    main.w3-container.w3-margin-top
+    main.page-content
       block content
 
     //- Rodapé
-    footer.w3-container.w3-dark-grey.w3-margin-top.w3-padding
-      p.w3-small.w3-center Arquivo Distrital de Braga / Universidade do Minho &mdash; #{date}
+    footer.site-footer
+      | Arquivo Distrital de Braga / Universidade do Minho &mdash; #{date}

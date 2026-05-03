@@ -449,3 +449,33 @@ footer.site-footer {
 .rel-form-box h5 { font-size: 0.9rem; color: #7a1f2e; margin-bottom: 0.75rem; }
 
 #msg-relacao { font-size: 0.85rem; }
+
+/* ---------------------------------- Import report ---------------------------------- */
+.report-meta p { margin: 0.2rem 0; font-size: 0.9rem; }
+.report-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.stat-box {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2ddd6;
+}
+.stat-box.stat-ok  { background: #f0fdf4; border-color: #86efac; }
+.stat-box.stat-warn { background: #fffbeb; border-color: #fcd34d; }
+.stat-box.stat-err  { background: #fef2f2; border-color: #fca5a5; }
+.stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-ok  .stat-num  { color: #166534; }
+.stat-warn .stat-num { color: #92400e; }
+.stat-err  .stat-num  { color: #b91c1c; }
+.stat-label { font-size: 0.8rem; color: #6b6b6b; margin-top: 0.25rem; }

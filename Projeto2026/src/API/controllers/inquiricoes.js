@@ -160,6 +160,98 @@ const inquiricaoController = {
         }
     },
 
+    // POST /inquiricoes/import (multipart: campo "ficheiro", JSON)
+    // Processo de ingestão: valida o pacote SIP e converte para AIP
+    // Devolve sempre um relatório com inseridos, duplicados e erros - nunca insere parcialmente um registo corrompido
+    importar: async function (req, res) {
+        // Campos obrigatórios mínimos para o registo ser aceite
+        const campos_obrig = ['proc_numero', 'requerente'];
+
+        const relatorio = {
+            ficheiro: req.file?.originalName || 'desconhecido',
+            data_importacao: new Date().toISOString(),
+            total_recebidos: 0,
+            inseridos: [],
+            duplicados: [],
+            erros: []
+        };
+
+        try {
+            // 1. Verificar se há ficheiro
+            if (!req.file) {
+                return res.status(400).json({ erro: 'Nenhum ficheiro recebido. Envia um ficheiro JSON no campo "ficheiro".' });
+            }
+
+            // 2. Fazer parse
+            let registos;
+            try {
+                const conteudo = req.file.buffer.toString('utf-8');
+                const parsed = JSON.parse(conteudo);
+
+                // Aceita-se tanto arrays diretos como o formato de exportação { meta, dados }
+                registos = Array.isArray(parsed) ? parsed : parsed.dados;
+
+                if (!Array.isArray(registos)) {
+                    return res.status(400).json({ erro: 'O ficheiro JSON deve conter um array de registos ou o formato de exportação { meta, dados }.' });
+                }
+            } catch (e) {
+                return res.status(400).json({ erro: `Ficheiro JSON inválido: ${e.message}` });
+            }
+
+            relatorio.total_recebidos = registos.length;
+
+            if (registos.length === 0) {
+                return res.status(400).json({ erro: 'O ficheiro não contém registos.' });
+            }
+
+            // 3. Validar e inserir registo a registo
+            for (let i = 0; i < registos.length; i++) {
+                const r = registos[i];
+                const ref = r.proc_numero != null ? `proc_numero ${r.proc_numero}` : `ìndice ${i}`;
+
+                // Campos obrigatórios
+                const faltam = campos_obrig.filter(c => r[c] == null || r[c] === '');
+                if (faltam.length > 0) {
+                    relatorio.erros.push({ ref, motivo: `Campo(s) obrigatório(s) em falta: ${faltam.join(', ')}` });
+                    continue;
+                }
+
+                // proc_numero tem de ser número inteiro positivo
+                const proc = parseInt(r.proc_numero);
+                if (isNaN(proc) || proc <= 0) {
+                    relatorio.erros.push({ ref, motivo: 'proc_numero deve ser um inteiro positivo' });
+                    continue;
+                }
+
+                // Verificar duplicados
+                const existente = await Inquiricao.findOne({ proc_numero: proc });
+                if (existente) {
+                    relatorio.duplicados.push(proc);
+                    continue;
+                }
+
+                // Inserir
+                try {
+                    const doc = new Inquiricao({
+                        ...r,
+                        proc_numero: proc,
+                        criador: req.utilizador?.username || 'import'
+                    });
+                    await doc.save();
+                    relatorio.inseridos.push(proc);
+                } catch (e) {
+                    relatorio.erros.push({ ref, motivo: e.message });
+                }
+            }
+
+            // 4. Devolver relatório completo
+            const temProblemas = relatorio.erros.length > 0 || relatorio.duplicados.length > 0
+            res.status(temProblemas ? 207 : 201).json(relatorio);
+        } catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
     // GET /inquiricoes/export?formato=json|csv (+ mesmos filtros do listar)
     // Devolve a totalidade dos registos que correspondam aos filtros, sem paginação
     // Implementa o processo de disseminação (AIP -> DIP) do modelo OAIS

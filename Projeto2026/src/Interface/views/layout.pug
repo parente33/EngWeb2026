@@ -25,6 +25,7 @@ html(lang='pt')
         a(href='/sugestoes') Sugestões
         if utilizador.nivel === 'administrador'
           a(href='/inquiricoes/novo') + Novo Registo
+          a(href='/import') ↑ Importar
       .nav-right
         if utilizador
           a(href='/perfil') @#{utilizador.username}

@@ -165,6 +165,57 @@ router.get('/inquiricoes/:proc_numero', async (req, res, next) => {
   }
 });
 
+// ------------------------------------------------- Import ------------------------------------------------- //
+
+const multerJson = require('multer')({
+  storage: require('multer').memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/json' || file.originalname.endsWith('.json'))
+      cb(null, true);
+    else
+      cb(new Error('Apenas ficheiros .json são aceites'));
+  }
+});
+
+router.get('/import', (req, res) => {
+  if (!req.session.utilizador || req.session.utilizador.nivel !== 'administrador')
+    return res.redirect('/login');
+  const date = new Date().toLocaleString('pt-PT', { hour12: false });
+  res.render('import', { title: 'Importar Registos', date, relatorio: null, erro: null });
+});
+
+router.post('/import', multerJson.single('ficheiro'), async (req, res, next) => {
+  if (!req.session.utilizador || req.session.utilizador.nivel !== 'administrador')
+    return res.redirect('/login');
+  const date = new Date().toLocaleString('pt-PT', { hour12: false });
+
+  try {
+    if (!req.file) {
+      return res.render('import', { title: 'Importar Registos', date, relatorio: null, erro: 'Nenhum ficheiro selecionado.' });
+    }
+
+    const form = new FormData();
+    form.append('ficheiro', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: 'application/json'
+    });
+
+    const r = await axios.post(`${API_URL}/inquiricoes/import`, form, {
+      headers: {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${req.session.token}`
+      }
+    });
+
+    res.render('import', { title: 'Importar Registos', date, relatorio: r.data, erro: null });
+  }
+  catch (err) {
+    const erro = err.response?.data?.erro || err.message;
+    res.render('import', { title: 'Importar Registos', date, relatorio: null, erro });
+  }
+});
+
 // ------------------------------------------------- Export ------------------------------------------------- //
 
 // Faz proxy ao endpoint de export da API e força o download no browser do user

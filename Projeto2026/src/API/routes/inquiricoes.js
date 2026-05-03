@@ -1,9 +1,21 @@
 const express = require('express')
 const router = express.Router()
+const multer = require('multer');
 const inquiricaoController = require('../controllers/inquiricoes')
 const { postController } = require('../controllers/posts')
 const { verifyToken, isAdmin } = require('../middleware/auth');
 
+
+const uploadJson = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/json' || file.originalname.endsWith('.json'))
+            cb(null, true);
+        else
+            cb(new Error('Apenas ficheiros .json são aceites'));
+    }
+});
 
 // ----------------------------------------- Índices (em primeiro para evitar colisões) ----------------------------------------- //
 
@@ -26,6 +38,10 @@ router.get('/contribuicoes/:username', inquiricaoController.contarContribuicoes)
 // Exportar; deve ficar antes de /:proc_numero para evitar colisão
 // Suporta ?formato=json|csv e os mesmos filtros do listar
 router.get('/export', inquiricaoController.exportar);
+
+// Importar; apenas admins
+// Recebe multipart/form-data com campo "ficheiro" (.json)
+router.post('/import', verifyToken, isAdmin, uploadJson.single('ficheiro'), inquiricaoController.importar);
 
 // Listar inquirições (suporta ?requerente= &concelho= &ano= &pagina= &limite=)
 router.get('/', inquiricaoController.listarTodasInquiricoes);

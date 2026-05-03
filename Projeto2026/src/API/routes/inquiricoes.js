@@ -23,6 +23,10 @@ router.get('/contribuicoes/:username', inquiricaoController.contarContribuicoes)
 
 // ----------------------------------------- CRUD sobre inquirições ----------------------------------------- //
 
+// Exportar; deve ficar antes de /:proc_numero para evitar colisão
+// Suporta ?formato=json|csv e os mesmos filtros do listar
+router.get('/export', inquiricaoController.exportar);
+
 // Listar inquirições (suporta ?requerente= &concelho= &ano= &pagina= &limite=)
 router.get('/', inquiricaoController.listarTodasInquiricoes);
 

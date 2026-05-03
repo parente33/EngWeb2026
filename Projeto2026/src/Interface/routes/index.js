@@ -165,6 +165,27 @@ router.get('/inquiricoes/:proc_numero', async (req, res, next) => {
   }
 });
 
+// ------------------------------------------------- Export ------------------------------------------------- //
+
+// Faz proxy ao endpoint de export da API e força o download no browser do user
+// Os filtros ativos na página de lista são passados como query string,
+// para que o export só tenha o que estava a ser visualizado
+router.get('/export', async (req, res, next) => {
+  try {
+    const formato = req.query.formato || 'json';
+
+    const params = new URLSearchParams(req.query).toString();
+    const r = await axios.get(`${API_URL}/inquiricoes/export?${params}`, { responseType: 'arraybuffer' }); // preserver encoding correto
+
+    res.setHeader('Content-Type', r.headers['content-type']);
+    res.setHeader('Content-Disposition', r.headers['content-disposition']);
+    res.send(r.data);
+  }
+  catch (err) {
+    next(err);
+  }
+})
+
 // ------------------------------------------------- Índices ------------------------------------------------- //
 
 router.get('/indice/nomes', async (req, res, next) => {

@@ -3,8 +3,14 @@ extends ../layout
 block content
   .flex-between.mb-2
     h2 Registos
-    if utilizador && utilizador.nivel === 'administrador'
-      a.btn.btn-accent(href='/inquiricoes/novo') + Novo Registo
+    .flex-gap
+      //- Botão de exportar: passa os filtros ativos e permite escolher formato
+      - const filtrosAtivos = Object.entries(query || {}).filter(([k,v]) => v && k !== 'pagina').map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&')
+      .export-group
+        a.btn.btn-ghost(href=`/export?formato=json${filtrosAtivos ? '&' + filtrosAtivos : ''}` title='Exportar registos visíveis em JSON') ↓ JSON
+        a.btn.btn-ghost(href=`/export?formato=csv${filtrosAtivos ? '&' + filtrosAtivos : ''}` title='Exportar registos visíveis em CSV') ↓ CSV
+      if utilizador && utilizador.nivel === 'administrador'
+        a.btn.btn-accent(href='/inquiricoes/novo') + Novo Registo
 
   //- Filtros
   .card.mb-2

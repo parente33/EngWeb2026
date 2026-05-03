@@ -160,6 +160,93 @@ const inquiricaoController = {
         }
     },
 
+    // GET /inquiricoes/export?formato=json|csv (+ mesmos filtros do listar)
+    // Devolve a totalidade dos registos que correspondam aos filtros, sem paginação
+    // Implementa o processo de disseminação (AIP -> DIP) do modelo OAIS
+    exportar: async function (req, res) {
+        try {
+            const formato = (req.query.formato || 'json').toLowerCase();
+
+            const filtro = {};
+
+            if (req.query.requerente)
+                filtro.requerente = { $regex: req.query.requerente, $options: 'i' };
+            if (req.query.pai)
+                filtro.pai = { $regex: req.query.pai, $options: 'i' };
+            if (req.query.mae)
+                filtro.mae = { $regex: req.query.mae, $options: 'i' };
+            if (req.query.freguesia)
+                filtro.freguesia = { $regex: req.query.freguesia, $options: 'i' };
+            if (req.query.concelho)
+                filtro.concelho = { $regex: req.query.concelho, $options: 'i' };
+            if (req.query.distrito)
+                filtro.distrito = { $regex: req.query.distrito, $options: 'i' };
+            if (req.query.ano)
+                filtro.data_inicial = { $regex: `^${req.query.ano}` };
+            if (req.query.texto)
+                filtro.$text = { $search: req.query.texto };
+
+            // Excluir campos internos do Mongoose
+            const dados = await Inquiricao
+                .find(filtro)
+                .select('-id -__v')
+                .sort({ proc_numero: 1 })
+                .lean();
+
+            const agora = new Date();
+            const timestamp = agora.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const nomeFicheiro = `inquiricoes_${timestamp}`;
+
+            if (formato === 'csv') {
+                const campos = [
+                    'proc_numero', 'nivel', 'cota_completa', 'cota', 'titulo',
+                    'data_inicial', 'data_final', 'repositorio', 'conteudo', 'caixa',
+                    'notas_fisicas', 'material_relacionado', 'nota', 'info_processo',
+                    'dimensoes', 'criador', 'data_criacao', 'hora_criacao',
+                    'requerente', 'pai', 'mae', 'freguesia', 'concelho', 'distrito'
+                ];
+
+                const escaparCsv = (val) => {
+                    if (val === null || val === undefined) return '';
+                    const str = String(val);
+                    if (str.includes(',') || str.includes('"') || str.includes('\n'))
+                        return `"${str.replace(/"/g, '""')}"`;
+                    return str;
+                };
+
+                const linhas = [
+                    campos.join(','),
+                    ...dados.map(d => campos.map(c => escaparCsv(d[c])).join(','))
+                ];
+
+                res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+                res.setHeader('Content-Disposition', `attachment; filename="${nomeFicheiro}.csv"`);
+                return res.send('\uFEFF' + linhas.join('\r\n'));
+            }
+
+            // JSON (default)
+            const pacote = {
+                meta: {
+                    fonte: 'Arquivo Distrital de Braga / Universidade do Minho',
+                    descricao: 'Inquirições de Génere - exportação de dados',
+                    data_exportacao: agora.toISOString(),
+                    total_registos: dados.length,
+                    filtros_aplicados: Object.keys(req.query)
+                        .filter(k => k !== 'formato')
+                        .reduce((acc, k) => ({ ...acc, [k]: req.query[k] }), {})
+                },
+                dados
+            };
+
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${nomeFicheiro}.json"`);
+            return res.json(pacote);
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
     contarContribuicoes: async function (req, res) {
         try {
             const total = await Inquiricao.countDocuments({ criador: req.params.username });
@@ -195,7 +282,7 @@ const inquiricaoController = {
             docA.relacoes.push({ nome: docB.requerente, relacao, proc_numero: proc_b });
             docA.markModified('relacoes');
             await docA.save();
-            
+
             res.json(docA);
         }
         catch (err) {

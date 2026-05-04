@@ -84,6 +84,14 @@ router.delete('/inquiricoes/:proc_numero/relacoes/:proc_relacionado', async (req
 router.get('/inquiricoes', async (req, res, next) => {
   try {
     const date   = new Date().toLocaleString('pt-PT', { hour12: false });
+
+    // Redirecionar logo para o registo se se pesquisar pelo nº de processo
+    if (req.query.proc_numero) {
+      const proc = parseInt(req.query.proc_numero);
+      if (!isNaN(proc) && proc > 0)
+        return res.redirect(`/inquiricoes/${proc}`);
+    }
+
     const params = new URLSearchParams();
     if (req.query.requerente) params.append('requerente', req.query.requerente);
     if (req.query.concelho)   params.append('concelho',   req.query.concelho);
@@ -165,6 +173,26 @@ router.get('/inquiricoes/:proc_numero', async (req, res, next) => {
   }
 });
 
+// ------------------------------------------------- Estatísticas ------------------------------------------------- //
+
+router.get('/stats', async (req, res, next) => {
+  try {
+    const date = new Date().toLocaleString('pt-PT', { hour12: false });
+    const r = await axios.get(`${API_URL}/inquiricoes/stats`);
+    res.render('stats', { title: 'Estatísticas', date, stats: r.data });
+  }
+  catch (err) { next(err); }
+});
+
+// Proxy do drill-down de séculos (stats.js cliente chama via fetch)
+router.get('/stats/seculo/:sec', async (req, res, next) => {
+  try {
+    const r = await axios.get(`${API_URL}/inquiricoes/stats/seculo/${req.params.sec}`);
+    res.json(r.data);
+  }
+  catch (err) { next(err); }
+});
+
 // ------------------------------------------------- Import ------------------------------------------------- //
 
 const multerJson = require('multer')({
@@ -235,7 +263,7 @@ router.get('/export', async (req, res, next) => {
   catch (err) {
     next(err);
   }
-})
+});
 
 // ------------------------------------------------- Índices ------------------------------------------------- //
 

@@ -43,6 +43,10 @@ router.get('/export', inquiricaoController.exportar);
 // Recebe multipart/form-data com campo "ficheiro" (.json)
 router.post('/import', verifyToken, isAdmin, uploadJson.single('ficheiro'), inquiricaoController.importar);
 
+// Estatísticas globais por século; antes de /:proc_numero para evitar colisão
+router.get('/stats', inquiricaoController.stats);
+router.get('/stats/seculo/:sec', inquiricaoController.statsPorSeculo);
+
 // Listar inquirições (suporta ?requerente= &concelho= &ano= &pagina= &limite=)
 router.get('/', inquiricaoController.listarTodasInquiricoes);
 

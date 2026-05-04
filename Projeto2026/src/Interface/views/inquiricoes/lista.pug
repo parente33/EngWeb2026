@@ -28,9 +28,13 @@ block content
         .form-group
           label Ano
           input(type='text' name='ano' value=query.ano || '')
-      .form-group.mt-1
-        label Pesquisa livre
-        input(type='text' name='texto' value=query.texto || '')
+      .form-row.mt-1
+        .form-group.flex-grow
+          label Pesquisa livre
+          input(type='text' name='texto' value=query.texto || '')
+        .form-group.proc-field
+          label Nº de Processo
+          input(type='number' name='proc_numero' value=query.proc_numero || '' min='1' placeholder='Ex: 1234')
       .form-actions
         button.btn.btn-primary(type='submit') Pesquisar
         a.btn.btn-ghost(href='/inquiricoes') Limpar

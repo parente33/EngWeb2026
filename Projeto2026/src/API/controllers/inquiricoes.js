@@ -1,5 +1,16 @@
 const Inquiricao = require('../models/inquiricao');
 
+// Converter números em romanos
+function romanizar(n) {
+    const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+    const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+    let result = '';
+    for (let i = 0; i < vals.length; i++) {
+        while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+    }
+    return result;
+}
+
 const inquiricaoController = {
 
     // Listar todos com filtros opcionais - com paginação
@@ -160,6 +171,122 @@ const inquiricaoController = {
         }
     },
 
+    // GET /inquiricoes/stats
+    // Agrega todas as estatísticas num único pedido
+    stats: async function (req, res) {
+        try {
+            const [
+                total,
+                porDistrito,
+                porSeculo,
+                topConcelhos,
+                topRequerentes,
+                topApelidos
+            ] = await Promise.all([
+
+                // Total de registos
+                Inquiricao.countDocuments(),
+
+                // Distribuição por distrito
+                Inquiricao.aggregate([
+                    { $match: { distrito: { $exists: true, $ne: null, $ne: '' } } },
+                    { $group: { _id: '$distrito', total: { $sum: 1 } } },
+                    { $sort: { total: -1 } }
+                ]),
+
+                // Distribuição por século (extrai-se dos 2 primeiros dígios de data_inicial)
+                Inquiricao.aggregate([
+                    { $match: { data_inicial: { $regex: /^\d{4}/ } } },
+                    { $project: { seculo: { $toInt: { $substr: ['$data_inicial', 0, 2] } } } },
+                    { $match: { seculo: { $gte: 10 } } }, // descarta anos mal formados
+                    { $group: { _id: '$seculo', total: { $sum: 1 } } },
+                    { $sort: { _id: 1 } }
+                ]),
+
+                // Top 10 concelhos com mais registos
+                Inquiricao.aggregate([
+                    { $match: { concelho: { $exists: true, $ne: null, $ne: '' } } },
+                    { $group: { _id: '$concelho', total: { $sum: 1 } } },
+                    { $sort: { total: -1 } },
+                    { $limit: 10 }
+                ]),
+
+                // Top 10 requerentes mais frequentes
+                Inquiricao.aggregate([
+                    { $match: { requerente: { $exists: true, $ne: null, $ne: '' } } },
+                    { $group: { _id: '$requerente', total: { $sum: 1 } } },
+                    { $sort: { total: -1 } },
+                    { $limit: 10 }
+                ]),
+
+                // Top 20 apelidos (último token de requerente)
+                Inquiricao.aggregate([
+                    { $match: { requerente: { $exists: true, $ne: null, $ne: '' } } },
+                    {
+                        $project: {
+                            apelido: {
+                                $trim: {
+                                    input: {
+                                        $arrayElemAt: [
+                                            { $split: ['$requerente', ' '] }, -1
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    { $match: { apelido: { $ne: '' } } },
+                    { $group: { _id: '$apelido', total: { $sum: 1 } } },
+                    { $sort: { total: -1 } },
+                    { $limit: 20 }
+                ])
+            ]);
+
+            res.json({
+                total,
+                porDistrito: porDistrito.map(d => ({ distrito: d._id, total: d.total })),
+                porSeculo: porSeculo.map(s => ({ seculo: s._id, label: `Séc. ${romanizar(s._id)}`, total: s.total })),
+                topConcelhos: topConcelhos.map(c => ({ concelho: c._id, total: c.total })),
+                topRequerentes: topRequerentes.map(r => ({ nome: r._id, total: r.total })),
+                topApelidos: topApelidos.map(a => ({ apelido: a._id, total: a.total }))
+            });
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
+    // GET /inquiricoes/stats/seculo/:sec
+    // Distribuição por década para um século
+    statsPorSeculo: async function (req, res) {
+        try {
+            const sec = parseInt(req.params.sec);
+            if (isNaN(sec) || sec < 10 || sec > 21)
+                return res.status(400).json({ erro: 'Século inválido' });
+
+            const anoMin = sec * 100;
+            const anoMax = anoMin + 99;
+
+            const decadas = await Inquiricao.aggregate([
+                { $match: { data_inicial: { $regex: /^\d{4}/ } } },
+                { $project: { ano: { $toInt: { $substr: ['$data_inicial', 0, 4] } } } },
+                { $match: { ano: { $gte: anoMin, $lte: anoMax } } },
+                { $project: { decada: { $multiply: [{ $floor: { $divide: ['$ano', 10] } }, 10] } } },
+                { $group: { _id: '$decada', total: { $sum: 1 } } },
+                { $sort: { _id: 1 } }
+            ]);
+
+            res.json({
+                seculo: sec,
+                label: `Séc. ${romanizar(sec)}`,
+                decadas: decadas.map(d => ({ decada: d._id, label: `${d._id}s`, total: d.total }))
+            });
+        }
+        catch (err) {
+            res.status(500).json({ erro: err.message });
+        }
+    },
+
     // POST /inquiricoes/import (multipart: campo "ficheiro", JSON)
     // Processo de ingestão: valida o pacote SIP e converte para AIP
     // Devolve sempre um relatório com inseridos, duplicados e erros - nunca insere parcialmente um registo corrompido
@@ -168,7 +295,7 @@ const inquiricaoController = {
         const campos_obrig = ['proc_numero', 'requerente'];
 
         const relatorio = {
-            ficheiro: req.file?.originalName || 'desconhecido',
+            ficheiro: req.file?.originalname || 'desconhecido',
             data_importacao: new Date().toISOString(),
             total_recebidos: 0,
             inseridos: [],

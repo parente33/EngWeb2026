@@ -32,7 +32,15 @@ const path = require('path');
 const uploadsDir = path.join(__dirname, 'public', 'uploads', 'perfis');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+// Servir uploads de perfil sem cache — garante que o browser recarrega sempre a foto atual
+// Também tava a dar chatices, foi assim que se resolveu (づ ◕‿◕ )づ
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
+  setHeaders: (res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+}));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'segredo_dev',
@@ -60,7 +68,6 @@ app.use('/auth', authRouter);
 app.get('/', (req, res) => {
   res.json({ servico: 'Auth Inquirições de Génere', status: 'ok' });
 });
-
 
 // ------------------------------ Erros ------------------------------ //
 

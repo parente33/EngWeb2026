@@ -54,7 +54,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-jwt_segredo_dev}
       SESSION_SECRET: ${SESSION_SECRET:-sessao_segredo_dev}
     volumes:
-      - auth_uploads:/app/public/uploads/perfis
+      - /src/Auth/public/uploads/perfis:/app/public/uploads/perfis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3002/"]
       interval: 10s
@@ -80,4 +80,3 @@ services:
 
 volumes:
   mongo_data:
-  auth_uploads:

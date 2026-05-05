@@ -167,6 +167,21 @@ exports.atualizarFoto = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ erro: 'Nenhum ficheiro.' });
     const urlFoto = `/uploads/perfis/${req.file.filename}`;
+
+    // Apagar ficheiros antigos do mesmo utilizador com extensão diferente
+    // (evita acumulação de .jpg, .png, .webp, etc. e confusão de cache)
+    // tava-se a ter uns problemas com isto, a ver se resolve
+    const dir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
+    const idUtilizador = String(req.utilizador.id);
+    try {
+      const ficheiros = fs.readdirSync(dir);
+      for (const f of ficheiros) {
+        if (f.startsWith(idUtilizador) && f !== req.file.filename) {
+          fs.unlinkSync(path.join(dir, f));
+        }
+      }
+    } catch (_) { /* se falhar não bloqueia o upload */ }
+
     const user = await User.findByIdAndUpdate(
       req.utilizador.id,
       { fotoPerfil: urlFoto },

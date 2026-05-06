@@ -3,6 +3,7 @@ const jwt      = require('jsonwebtoken');
 const path     = require('path');
 const fs       = require('fs');
 const multer = require('multer');
+const crypto   = require('crypto');
 const User     = require('../models/user');
 
 const JWT_SECRET  = process.env.JWT_SECRET  || 'jwt_segredo_dev';
@@ -10,17 +11,13 @@ const JWT_EXPIRES = process.env.JWT_EXPIRES || '8h';
 
 // ------------------------------------------------- Multer ------------------------------------------------- //
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${req.utilizador.id}${ext}`);
-  },
-});
+// Diretoria base para fotos de perfil
+const UPLOADS_BASE = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
+fs.mkdirSync(UPLOADS_BASE, { recursive: true }); // Garantir que existe
+
+// Guardar temporariamente em memória para calcular o hash antes de decidir o caminho final
+const storage = multer.memoryStorage();
+
 exports.uploadFoto = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } }).single('foto');
 
 // ------------------------------------------------- JWT ------------------------------------------------- //
@@ -166,27 +163,30 @@ exports.atualizarPerfil = async (req, res) => {
 exports.atualizarFoto = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ erro: 'Nenhum ficheiro.' });
-    const urlFoto = `/uploads/perfis/${req.file.filename}`;
 
-    // Apagar ficheiros antigos do mesmo utilizador com extensão diferente
-    // (evita acumulação de .jpg, .png, .webp, etc. e confusão de cache)
-    // tava-se a ter uns problemas com isto, a ver se resolve
-    const dir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
-    const idUtilizador = String(req.utilizador.id);
-    try {
-      const ficheiros = fs.readdirSync(dir);
-      for (const f of ficheiros) {
-        if (f.startsWith(idUtilizador) && f !== req.file.filename) {
-          fs.unlinkSync(path.join(dir, f));
-        }
-      }
-    } catch (_) { /* se falhar não bloqueia o upload */ }
+    // Calcular SHA-256 do ficheiro
+    const hash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
+    const ext = path.extname(req.file.originalname).toLowerCase();
+
+    // Construir o caminho para a foto: <base>/<aa>/<bb>/<resto><ext>
+    const dir1 = hash.slice(0, 2);
+    const dir2 = hash.slice(2, 4);
+    const filename = hash.slice(4) + ext;
+    const dirPath = path.join(UPLOADS_BASE, dir1, dir2);
+    const filePath = path.join(dirPath, filename);
+
+    // Criar as subdiretorias e guardar o ficheiro
+    fs.mkdirSync(dirPath, { recursive: true });
+    fs.writeFileSync(filePath, req.file.buffer);
+
+    const urlFoto = `/uploads/perfis/${dir1}/${dir2}/${filename}`;
 
     const user = await User.findByIdAndUpdate(
       req.utilizador.id,
       { fotoPerfil: urlFoto },
       { new: true }
     );
+
     res.json({ fotoPerfil: user.fotoPerfil });
   } catch (err) {
     res.status(500).json({ erro: err.message });
